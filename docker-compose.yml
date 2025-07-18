@@ -1,0 +1,37 @@
+services:
+  convflow-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Copy these from your .env file or set them here
+      - CLOUDFLARE_ACCOUNT_ID=${CLOUDFLARE_ACCOUNT_ID}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}
+      # Optional: Set log level
+      - LOG_LEVEL=INFO
+    volumes:
+      # Optional: Add development volume mount
+      # - .:/app
+      # Temporary storage for file processing
+      - /tmp
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Add nginx for production
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - convflow-api
+    restart: unless-stopped
+    profiles:
+      - production
