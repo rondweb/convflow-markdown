@@ -1,0 +1,8 @@
+The application is functional, but it uses simulated data and mock API calls for certain features.
+Here's a breakdown:
+User Interface and Navigation: All pages (Home, Login, Register, Dashboard, Pricing, History, Settings) are fully functional and navigable. You can interact with forms, buttons, and navigation elements.
+Authentication: The login and registration processes are functional, but they use mock authentication within . This means user data is stored in and not persisted to a real backend database.src/contexts/AuthContext.tsxlocalStorage
+File Upload and Conversion: The file upload component in is interactive, supporting drag-and-drop and file selection. It simulates the upload and conversion process with progress indicators and success/error messages, but it does not actually send files to a server or perform real conversions.src/components/dashboard/FileUpload.tsx
+Dashboard and History: The data displayed on the Dashboard and History pages (e.g., conversion usage, recent conversions) is mock data defined within the respective components (, , ). It does not reflect real user activity or data from a database.src/pages/History.tsxsrc/components/dashboard/RecentConversions.tsxsrc/components/dashboard/PlanUsage.tsx
+Settings: Updating profile information, changing passwords, and managing notification preferences in are simulated actions that display success messages but do not persist changes to a backend.src/pages/Settings.tsx
+In essence, it's a fully interactive and visually complete frontend application that demonstrates the intended user experience and workflow, but it relies on client-side simulations rather than live backend integrations for data persistence and core functionalities like file conversion and payment processing.

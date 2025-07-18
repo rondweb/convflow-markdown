@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConvFlow - Convert Any File to Markdown Format | Enterprise Document Automation Platform</title>
+    <meta name="description" content="Transform PDFs, Word docs, Excel files, images, and audio into standardized Markdown format. Unify your documentation ecosystem with version control-friendly, searchable text. Trusted by 1000+ enterprises for seamless document workflows.">
+    <meta name="keywords" content="markdown converter, file to markdown format, document standardization, enterprise documentation, version control friendly documents, text-based documentation, markdown format benefits, unified document system, API documentation, technical writing automation, content management system, document workflow optimization">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="ConvFlow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="application-name" content="ConvFlow">
+    <meta name="apple-mobile-web-app-title" content="ConvFlow">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Geo Meta Tags -->
+    <meta name="geo.region" content="US">
+    <meta name="geo.position" content="37.7749;-122.4194">
+    <meta name="ICBM" content="37.7749, -122.4194">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://convflow.com/">
+        <meta property="og:title" content="ConvFlow - Convert Any File to Markdown Format | Enterprise Document Automation">
+    <meta property="og:description" content="Unify your documentation ecosystem with Markdown. Transform any document into version control-friendly, searchable format. Save 10+ hours weekly on documentation workflows.">
+    <meta property="og:image" content="https://convflow.com/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://convflow.com/">
+    <meta property="twitter:title" content="ConvFlow - Convert Any File to Markdown Format | Enterprise Document Automation">
+    <meta property="twitter:description" content="Unify your documentation ecosystem with Markdown. Transform any document into version control-friendly, searchable format.">
+    <meta property="twitter:image" content="https://convflow.com/twitter-image.jpg">
+
+    <link rel="canonical" href="https://convflow.com/">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+
+        .hero-gradient {
+            background: var(--primary-gradient);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="0,0 1000,100 1000,0"/></svg>');
+            background-size: cover;
+        }
+
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            background: var(--success-gradient);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.5rem;
+        }
+
+        .testimonial-card {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            font-size: 6rem;
+            color: rgba(255,255,255,0.3);
+            font-weight: bold;
+        }
+
+        .pricing-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card.is-popular {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.is-popular::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .cta-button {
+            background: var(--secondary-gradient);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .stats-counter {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .trust-badge {
+            background: rgba(255,255,255,0.9);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .urgency-banner {
+            background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            animation: pulse-bg 2s infinite;
+        }
+
+        @keyframes pulse-bg {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .social-proof {
+            background: #f8f9fa;
+            padding: 2rem 0;
+        }
+
+        .logo-scroll {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            opacity: 0.6;
+            animation: scroll 20s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .benefit-list li {
+            padding: 0.5rem 0;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .benefit-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .scarcity-text {
+            color: #e74c3c;
+            font-weight: 600;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem !important;
+            }
+            
+            .stats-counter {
+                font-size: 2rem;
+            }
+            
+            .pricing-card.is-popular {
+                transform: none;
+            }
+            
+            .trust-badge {
+                margin: 0.25rem;
+                padding: 0.5rem;
+            }
+        }
+
+        .risk-reversal {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .countdown-timer {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .timer-digit {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <!-- Urgency Banner -->
+    <div class="urgency-banner">
+        <div class="container">
+            <i class="fas fa-fire"></i> 
+            <strong>LIMITED TIME:</strong> 7-Day Free Trial + 50% Off First Month - <span class="scarcity-text">Only 47 Spots Left!</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar is-white" role="navigation" aria-label="main navigation">
+        <div class="container">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="#home">
+                    <strong class="gradient-text" style="font-size: 1.5rem;">ConvFlow</strong>
+                </a>
+                <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+            <div class="navbar-menu">
+                <div class="navbar-start">
+                    <a class="navbar-item" href="#features">Features</a>
+                    <a class="navbar-item" href="#pricing">Pricing</a>
+                    <a class="navbar-item" href="#testimonials">Reviews</a>
+                    <a class="navbar-item" href="#faq">FAQ</a>
+                </div>
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <a class="button is-light" href="#login">Sign In</a>
+                            <a class="button cta-button" href="#signup">
+                                <strong>Start Free Trial</strong>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero is-large hero-gradient" id="home">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns is-vcentered">
+                    <div class="column is-6">
+                        <h1 class="title is-1 has-text-white" style="font-weight: 700; line-height: 1.2;">
+                            Transform Any Document into Universal <span class="has-text-warning">Markdown Format</span>
+                        </h1>
+                        <p class="subtitle is-4 has-text-white-bis" style="margin-bottom: 2rem;">
+                            Unify your documentation ecosystem with Markdown - the universal text format that works everywhere. 
+                            Convert PDFs, Word docs, Excel files, images, and audio into <strong class="has-text-warning">standardized, searchable, version-controlled</strong> documentation.
+                        </p>
+                        
+                        <!-- Social Proof Numbers -->
+                        <div class="columns is-mobile has-text-centered" style="margin-bottom: 2rem;">
+                            <div class="column">
+                                <div class="trust-badge">
+                                    <div class="stats-counter">1,247</div>
+                                    <div class="is-size-7">Teams Trust Us</div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="trust-badge">
+                                    <div class="stats-counter">50K+</div>
+                                    <div class="is-size-7">Files Converted</div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="trust-badge">
+                                    <div class="stats-counter">4.9★</div>
+                                    <div class="is-size-7">Customer Rating</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="buttons">
+                            <a class="button is-large cta-button pulse-animation" href="#signup">
+                                <span class="icon"><i class="fas fa-rocket"></i></span>
+                                <span><strong>Start Free Trial</strong></span>
+                            </a>
+                            <a class="button is-large is-white is-outlined" href="#demo">
+                                <span class="icon"><i class="fas fa-play"></i></span>
+                                <span>Watch Demo</span>
+                            </a>
+                        </div>
+                        
+                        <p class="is-size-7 has-text-white-ter" style="margin-top: 1rem;">
+                            <i class="fas fa-shield-alt"></i> No credit card required • 7-day free trial • Cancel anytime
+                        </p>
+                    </div>
+                    
+                    <div class="column is-6">
+                        <div class="floating-animation">
+                            <div class="box" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+                                <div class="has-text-centered">
+                                    <h3 class="title is-4">Upload Any File Format</h3>
+                                    <div class="columns is-multiline is-mobile">
+                                        <div class="column is-4">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-file-pdf"></i>
+                                            </div>
+                                            <p class="is-size-7">PDF</p>
+                                        </div>
+                                        <div class="column is-4">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-file-word"></i>
+                                            </div>
+                                            <p class="is-size-7">Word</p>
+                                        </div>
+                                        <div class="column is-4">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-file-excel"></i>
+                                            </div>
+                                            <p class="is-size-7">Excel</p>
+                                        </div>
+                                        <div class="column is-4">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-image"></i>
+                                            </div>
+                                            <p class="is-size-7">Images</p>
+                                        </div>
+                                        <div class="column is-4">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-music"></i>
+                                            </div>
+                                            <p class="is-size-7">Audio</p>
+                                        </div>
+                                        <div class="column is-4">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-video"></i>
+                                            </div>
+                                            <p class="is-size-7">Video</p>
+                                        </div>
+                                    </div>
+                                    <div class="has-text-centered">
+                                        <i class="fas fa-arrow-down is-size-3 gradient-text"></i>
+                                    </div>
+                                    <div class="box" style="background: var(--primary-gradient); color: white; margin-top: 1rem;">
+                                        <i class="fab fa-markdown is-size-1"></i>
+                                        <p class="title is-5 has-text-white">Perfect Markdown</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof Section -->
+    <section class="section social-proof">
+        <div class="container">
+            <div class="has-text-centered">
+                <p class="title is-6 has-text-grey">Trusted by leading companies worldwide</p>
+                <div class="logo-scroll">
+                    <div class="trust-badge">TechCorp</div>
+                    <div class="trust-badge">DataFlow Inc</div>
+                    <div class="trust-badge">CloudSystems</div>
+                    <div class="trust-badge">DevTools Pro</div>
+                    <div class="trust-badge">MarkdownWorks</div>
+                    <div class="trust-badge">DocuFlow</div>
+                    <div class="trust-badge">TechCorp</div>
+                    <div class="trust-badge">DataFlow Inc</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What is Markdown Section -->
+    <section class="section" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+        <div class="container">
+            <div class="columns is-vcentered">
+                <div class="column is-6">
+                    <h2 class="title is-2 gradient-text">What is Markdown Format?</h2>
+                    <div class="content is-large">
+                        <p class="subtitle is-5">
+                            <strong>Markdown is the universal language of documentation</strong> - a lightweight, text-based format that's human-readable and machine-processable.
+                        </p>
+                        <ul class="benefit-list">
+                            <li><strong>Platform Independent:</strong> Works on any system, any device, any software</li>
+                            <li><strong>Version Control Ready:</strong> Perfect for Git, tracks changes line-by-line</li>
+                            <li><strong>Future-Proof:</strong> Plain text format that never becomes obsolete</li>
+                            <li><strong>Developer Friendly:</strong> Native format for GitHub, GitLab, and modern dev tools</li>
+                            <li><strong>Lightweight & Fast:</strong> No bloated file sizes or proprietary formats</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="column is-6">
+                    <div class="box" style="background: #2c3e50; color: #ecf0f1; font-family: 'Courier New', monospace;">
+                        <h4 class="title is-5 has-text-white">Example Markdown:</h4>
+                        <pre style="background: transparent; color: #ecf0f1; padding: 0;">
+# Company Policy Document
+
+## Employee Guidelines
+
+- **Remote Work**: Flexible hours allowed
+- **Equipment**: Laptop provided on first day
+- **Benefits**: Health insurance after 90 days
+
+### Important Notes
+
+> All employees must complete security training
+
+| Department | Manager | Budget |
+|------------|---------|--------|
+| Engineering| Sarah   | $500K  |
+| Marketing  | John    | $200K  |
+
+*Last updated: 2025-01-18*
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Markdown for Enterprise Section -->
+    <section class="section">
+        <div class="container">
+            <div class="has-text-centered" style="margin-bottom: 3rem;">
+                <h2 class="title is-2">Why Enterprises Choose Markdown Format</h2>
+                <p class="subtitle is-4 has-text-grey">Solve your documentation chaos with a unified, standardized approach</p>
+            </div>
+            
+            <div class="columns is-multiline">
+                <div class="column is-6">
+                    <div class="card card-hover" style="height: 100%;">
+                        <div class="card-content">
+                            <div class="feature-icon" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h3 class="title is-4 has-text-danger">The Multi-Format Problem</h3>
+                            <ul style="list-style: disc; margin-left: 2rem;">
+                                <li>PDFs that can't be searched or edited</li>
+                                <li>Word docs that break when shared</li>
+                                <li>PowerPoints locked in proprietary format</li>
+                                <li>Images with embedded text no one can find</li>
+                                <li>Audio recordings gathering digital dust</li>
+                                <li>Inconsistent formatting across departments</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-6">
+                    <div class="card card-hover" style="height: 100%;">
+                        <div class="card-content">
+                            <div class="feature-icon">
+                                <i class="fab fa-markdown"></i>
+                            </div>
+                            <h3 class="title is-4 gradient-text">The Markdown Solution</h3>
+                            <ul class="benefit-list">
+                                <li><strong>One Format, All Content:</strong> Every document becomes searchable text</li>
+                                <li><strong>Universal Compatibility:</strong> Read anywhere, edit with any tool</li>
+                                <li><strong>Version Control Native:</strong> Track every change, merge documents</li>
+                                <li><strong>AI & Search Friendly:</strong> Content indexing and analysis ready</li>
+                                <li><strong>Consistent Structure:</strong> Standardized formatting across all docs</li>
+                                <li><strong>Future-Proof:</strong> Never worry about format obsolescence</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enterprise Use Cases -->
+            <div style="margin-top: 4rem;">
+                <h3 class="title is-3 has-text-centered gradient-text">Enterprise Use Cases</h3>
+                <div class="columns is-multiline">
+                    <div class="column is-4">
+                        <div class="box has-text-centered">
+                            <i class="fas fa-code is-size-1 gradient-text"></i>
+                            <h4 class="title is-5">Technical Documentation</h4>
+                            <p>API docs, code comments, and technical guides in developer-friendly format. Integrate directly with your development workflow.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="column is-4">
+                        <div class="box has-text-centered">
+                            <i class="fas fa-building is-size-1 gradient-text"></i>
+                            <h4 class="title is-5">Policy & Procedures</h4>
+                            <p>Company policies, employee handbooks, and procedures that are easy to update, version, and distribute across your organization.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="column is-4">
+                        <div class="box has-text-centered">
+                            <i class="fas fa-users is-size-1 gradient-text"></i>
+                            <h4 class="title is-5">Knowledge Management</h4>
+                            <p>Training materials, meeting notes, and institutional knowledge in a format that's searchable and accessible to everyone.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="column is-4">
+                        <div class="box has-text-centered">
+                            <i class="fas fa-chart-line is-size-1 gradient-text"></i>
+                            <h4 class="title is-5">Reports & Analytics</h4>
+                            <p>Convert complex reports and data presentations into structured, searchable format that integrates with your BI tools.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="column is-4">
+                        <div class="box has-text-centered">
+                            <i class="fas fa-graduation-cap is-size-1 gradient-text"></i>
+                            <h4 class="title is-5">Training & Onboarding</h4>
+                            <p>Educational content, tutorials, and onboarding materials that work across all platforms and learning management systems.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="column is-4">
+                        <div class="box has-text-centered">
+                            <i class="fas fa-balance-scale is-size-1 gradient-text"></i>
+                            <h4 class="title is-5">Compliance & Legal</h4>
+                            <p>Legal documents, compliance reports, and regulatory documentation with proper version tracking and audit trails.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem/Solution Section -->
+    <section class="section" style="background: #f8f9fa;">
+        <div class="container">
+            <div class="columns is-vcentered">
+                <div class="column is-6">
+                    <h2 class="title is-2 has-text-danger">The Multi-Format Documentation Crisis</h2>
+                    <div class="content is-large">
+                        <ul class="benefit-list">
+                            <li style="color: #e74c3c;"><strong>Format Fragmentation:</strong> PDFs, Word docs, PowerPoints scattered everywhere</li>
+                            <li style="color: #e74c3c;"><strong>Search Impossibility:</strong> Content locked in binary formats, unsearchable</li>
+                            <li style="color: #e74c3c;"><strong>Version Chaos:</strong> Multiple copies, no change tracking, merge conflicts</li>
+                            <li style="color: #e74c3c;"><strong>Platform Dependencies:</strong> Docs only work with specific software</li>
+                            <li style="color: #e74c3c;"><strong>Knowledge Silos:</strong> Information trapped in departmental formats</li>
+                            <li style="color: #e74c3c;"><strong>Future Risk:</strong> Proprietary formats become obsolete</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="column is-6">
+                    <h2 class="title is-2 gradient-text">The Markdown Transformation</h2>
+                    <div class="content is-large">
+                        <ul class="benefit-list">
+                            <li><strong>Universal Format:</strong> One standard for all your documents</li>
+                            <li><strong>Full-Text Search:</strong> Every word instantly searchable and indexable</li>
+                            <li><strong>Git Integration:</strong> Professional version control, branching, merging</li>
+                            <li><strong>Platform Freedom:</strong> Edit anywhere, view on any device</li>
+                            <li><strong>Knowledge Unification:</strong> All content in searchable, linkable format</li>
+                            <li><strong>Eternal Compatibility:</strong> Plain text never goes out of style</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="has-text-centered" style="margin-bottom: 3rem;">
+                <h2 class="title is-2 gradient-text">Why ConvFlow's Markdown Conversion Stands Out</h2>
+                <p class="subtitle is-4 has-text-grey">Advanced AI that preserves structure, meaning, and formatting in perfect Markdown</p>
+            </div>
+            
+            <div class="columns is-multiline">
+                <div class="column is-4">
+                    <div class="card card-hover">
+                        <div class="card-content has-text-centered">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3 class="title is-4">AI-Powered Structure Recognition</h3>
+                            <p>Our advanced AI understands document hierarchy, preserving headings, lists, tables, and formatting in perfect Markdown syntax. No manual cleanup required.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="card card-hover">
+                        <div class="card-content has-text-centered">
+                            <div class="feature-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3 class="title is-4">Content Extraction Excellence</h3>
+                            <p>Extract text from images, PDFs, audio transcripts, and complex layouts. Even handwritten notes become searchable Markdown content.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="card card-hover">
+                        <div class="card-content has-text-centered">
+                            <div class="feature-icon">
+                                <i class="fab fa-git-alt"></i>
+                            </div>
+                            <h3 class="title is-4">Version Control Ready</h3>
+                            <p>Generated Markdown works perfectly with Git, GitHub, GitLab. Track changes, create branches, merge documents like code.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="card card-hover">
+                        <div class="card-content has-text-centered">
+                            <div class="feature-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <h3 class="title is-4">Developer Ecosystem Integration</h3>
+                            <p>Seamlessly integrate with documentation sites, wikis, CMS platforms, and developer tools that support Markdown natively.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="card card-hover">
+                        <div class="card-content has-text-centered">
+                            <div class="feature-icon">
+                                <i class="fas fa-table"></i>
+                            </div>
+                            <h3 class="title is-4">Complex Layout Handling</h3>
+                            <p>Preserve complex tables, nested lists, code blocks, and multi-column layouts in clean, standards-compliant Markdown format.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="card card-hover">
+                        <div class="card-content has-text-centered">
+                            <div class="feature-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h3 class="title is-4">Universal Compatibility</h3>
+                            <p>Generated Markdown works everywhere - GitHub, Notion, documentation sites, static site generators, and any text editor.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="section" style="background: #f8f9fa;" id="testimonials">
+        <div class="container">
+            <div class="has-text-centered" style="margin-bottom: 3rem;">
+                <h2 class="title is-2">What Our Customers Say</h2>
+                <p class="subtitle is-4 has-text-grey">Join 1,247 teams who've transformed their documentation workflow</p>
+            </div>
+            
+            <div class="columns is-multiline">
+                <div class="column is-4">
+                    <div class="card testimonial-card">
+                        <div class="card-content">
+                            <p class="content">"ConvFlow saved our team 15 hours per week. We can now focus on building instead of formatting documents."</p>
+                            <div class="media">
+                                <div class="media-left">
+                                    <figure class="image is-48x48">
+                                        <img class="is-rounded" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Customer">
+                                    </figure>
+                                </div>
+                                <div class="media-content">
+                                    <p class="title is-6">Sarah Johnson</p>
+                                    <p class="subtitle is-7">CTO, TechFlow Inc</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="card testimonial-card">
+                        <div class="card-content">
+                            <p class="content">"The API integration is seamless. We process 500+ documents daily without any issues."</p>
+                            <div class="media">
+                                <div class="media-left">
+                                    <figure class="image is-48x48">
+                                        <img class="is-rounded" src="https://images.unsplash.com/photo-1494790108755-2616b612b647?w=100&h=100&fit=crop&crop=face" alt="Customer">
+                                    </figure>
+                                </div>
+                                <div class="media-content">
+                                    <p class="title is-6">Maria Rodriguez</p>
+                                    <p class="subtitle is-7">DevOps Lead, CloudSystems</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="card testimonial-card">
+                        <div class="card-content">
+                            <p class="content">"ROI was immediate. We calculated $50,000 in time savings in the first quarter alone."</p>
+                            <div class="media">
+                                <div class="media-left">
+                                    <figure class="image is-48x48">
+                                        <img class="is-rounded" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="Customer">
+                                    </figure>
+                                </div>
+                                <div class="media-content">
+                                    <p class="title is-6">David Chen</p>
+                                    <p class="subtitle is-7">VP Engineering, DataFlow</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="section" id="pricing">
+        <div class="container">
+            <div class="has-text-centered" style="margin-bottom: 3rem;">
+                <h2 class="title is-2 gradient-text">Simple, Transparent Pricing</h2>
+                <p class="subtitle is-4 has-text-grey">Choose the plan that fits your team's needs</p>
+                
+                <!-- Countdown Timer -->
+                <div class="countdown-timer">
+                    <p class="title is-6 has-text-white">🔥 Limited Time Offer Ends In:</p>
+                    <div class="columns is-mobile is-centered">
+                        <div class="column is-narrow">
+                            <div class="timer-digit" id="days">02</div>
+                            <div class="is-size-7">Days</div>
+                        </div>
+                        <div class="column is-narrow">
+                            <div class="timer-digit" id="hours">14</div>
+                            <div class="is-size-7">Hours</div>
+                        </div>
+                        <div class="column is-narrow">
+                            <div class="timer-digit" id="minutes">32</div>
+                            <div class="is-size-7">Minutes</div>
+                        </div>
+                        <div class="column is-narrow">
+                            <div class="timer-digit" id="seconds">45</div>
+                            <div class="is-size-7">Seconds</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="columns is-centered">
+                <div class="column is-4">
+                    <div class="card pricing-card">
+                        <div class="card-content has-text-centered">
+                            <h3 class="title is-4">Basic</h3>
+                            <div class="title is-2 gradient-text">$29<span class="is-size-5 has-text-grey">/month</span></div>
+                            <p class="subtitle is-6 has-text-grey">Perfect for small teams</p>
+                            
+                            <ul class="benefit-list" style="text-align: left; margin: 2rem 0;">
+                                <li>50 conversions/month</li>
+                                <li>10MB max file size</li>
+                                <li>PDF, Word, Images</li>
+                                <li>30-day history</li>
+                                <li>Email support</li>
+                            </ul>
+                            
+                            <a class="button is-large is-fullwidth cta-button" href="#signup-basic">
+                                Start Free Trial
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="card pricing-card is-popular">
+                        <div class="card-content has-text-centered">
+                            <h3 class="title is-4">Professional</h3>
+                            <div class="title is-2 gradient-text">$89<span class="is-size-5 has-text-grey">/month</span></div>
+                            <p class="subtitle is-6 has-text-grey">For growing businesses</p>
+                            
+                            <ul class="benefit-list" style="text-align: left; margin: 2rem 0;">
+                                <li>500 conversions/month</li>
+                                <li>100MB max file size</li>
+                                <li>All file formats</li>
+                                <li>90-day history</li>
+                                <li>API access</li>
+                                <li>Priority support</li>
+                                <li>Team collaboration</li>
+                            </ul>
+                            
+                            <a class="button is-large is-fullwidth cta-button" href="#signup-pro">
+                                Start Free Trial
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column is-4">
+                    <div class="card pricing-card">
+                        <div class="card-content has-text-centered">
+                            <h3 class="title is-4">Enterprise</h3>
+                            <div class="title is-2 gradient-text">$199<span class="is-size-5 has-text-grey">/month</span></div>
+                            <p class="subtitle is-6 has-text-grey">For large organizations</p>
+                            
+                            <ul class="benefit-list" style="text-align: left; margin: 2rem 0;">
+                                <li>Unlimited conversions</li>
+                                <li>1GB max file size</li>
+                                <li>All file formats</li>
+                                <li>1-year history</li>
+                                <li>Full API access</li>
+                                <li>24/7 phone support</li>
+                                <li>Custom integrations</li>
+                                <li>SLA guarantee</li>
+                            </ul>
+                            
+                            <a class="button is-large is-fullwidth cta-button" href="#signup-enterprise">
+                                Start Free Trial
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Risk Reversal -->
+            <div class="risk-reversal">
+                <h3 class="title is-4">30-Day Money-Back Guarantee</h3>
+                <p class="subtitle is-5">Try ConvFlow risk-free. If you're not completely satisfied, we'll refund every penny. No questions asked.</p>
+                <div class="columns is-mobile is-centered" style="margin-top: 1rem;">
+                    <div class="column is-narrow">
+                        <i class="fas fa-shield-alt is-size-3 has-text-success"></i>
+                    </div>
+                    <div class="column is-narrow">
+                        <i class="fas fa-lock is-size-3 has-text-success"></i>
+                    </div>
+                    <div class="column is-narrow">
+                        <i class="fas fa-medal is-size-3 has-text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section" style="background: #f8f9fa;" id="faq">
+        <div class="container">
+            <div class="has-text-centered" style="margin-bottom: 3rem;">
+                <h2 class="title is-2">Frequently Asked Questions</h2>
+                <p class="subtitle is-4 has-text-grey">Everything you need to know about ConvFlow</p>
+            </div>
+            
+            <div class="columns">
+                <div class="column is-8 is-offset-2">
+                    <div class="content">
+                        <div class="card" style="margin-bottom: 1rem;">
+                            <div class="card-content">
+                                <h4 class="title is-5">What exactly is Markdown and why should my company use it?</h4>
+                                <p>Markdown is a lightweight, text-based format that's human-readable and universally compatible. It's the standard for technical documentation, used by GitHub, Reddit, Stack Overflow, and thousands of companies. Benefits include: version control compatibility, platform independence, future-proofing, searchability, and developer-friendly workflows.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-bottom: 1rem;">
+                            <div class="card-content">
+                                <h4 class="title is-5">What file formats do you convert to Markdown?</h4>
+                                <p>We support PDF, Microsoft Word, Excel, PowerPoint, images (JPG, PNG, GIF), audio files (MP3, WAV), video files (MP4, AVI), text files, and many more. Our AI extracts text, structure, and formatting from virtually any document and converts it to clean, standards-compliant Markdown.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-bottom: 1rem;">
+                            <div class="card-content">
+                                <h4 class="title is-5">How accurate is the Markdown conversion?</h4>
+                                <p>Our AI achieves 95%+ accuracy in text extraction and structure preservation. Complex elements like tables, nested lists, code blocks, and document hierarchy are maintained in proper Markdown syntax. Headers, formatting, and document structure are automatically detected and converted correctly.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-bottom: 1rem;">
+                            <div class="card-content">
+                                <h4 class="title is-5">Can I integrate ConvFlow with our existing documentation workflow?</h4>
+                                <p>Absolutely! Our REST API integrates with popular platforms like GitHub, GitLab, Notion, Confluence, documentation generators (Hugo, Jekyll, Gatsby), and any system that accepts Markdown. We also offer webhooks and pre-built integrations for seamless workflow automation.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-bottom: 1rem;">
+                            <div class="card-content">
+                                <h4 class="title is-5">How does Markdown help with version control and collaboration?</h4>
+                                <p>Unlike binary formats (PDF, Word), Markdown is plain text, making it perfect for Git version control. You can track changes line-by-line, create branches for different document versions, merge contributions from multiple authors, and maintain a complete audit trail of all document changes.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-bottom: 1rem;">
+                            <div class="card-content">
+                                <h4 class="title is-5">What happens to complex formatting like tables and images?</h4>
+                                <p>Our AI preserves complex formatting in Markdown syntax. Tables become Markdown tables, images are referenced with proper syntax, code blocks are maintained, and nested structures are preserved. The output is clean, standards-compliant Markdown that renders perfectly in any Markdown viewer.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-content">
+                                <h4 class="title is-5">Is there a learning curve for my team to adopt Markdown?</h4>
+                                <p>Markdown is designed to be intuitive and readable even in its raw form. Most team members can learn the basics in 15 minutes. Plus, many tools provide WYSIWYG editors for Markdown, so teams can edit visually while still getting all the benefits of the underlying text format.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="section hero-gradient">
+        <div class="container">
+            <div class="has-text-centered">
+                <h2 class="title is-2 has-text-white">Ready to Transform Your Documentation Workflow?</h2>
+                <p class="subtitle is-4 has-text-white-bis" style="margin-bottom: 2rem;">
+                    Join 1,247 teams who've already saved thousands of hours with ConvFlow
+                </p>
+                
+                <div class="buttons is-centered">
+                    <a class="button is-large cta-button pulse-animation" href="#signup">
+                        <span class="icon"><i class="fas fa-rocket"></i></span>
+                        <span><strong>Start Your Free Trial Now</strong></span>
+                    </a>
+                </div>
+                
+                <p class="is-size-7 has-text-white-ter" style="margin-top: 1rem;">
+                    <i class="fas fa-clock"></i> Setup takes less than 2 minutes • <i class="fas fa-shield-alt"></i> 30-day money-back guarantee
+                </p>
+                
+                <!-- Last-minute urgency -->
+                <div class="box" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); margin-top: 2rem;">
+                    <p class="has-text-white">
+                        <strong class="scarcity-text">⚡ Limited Time:</strong> First 100 signups get 50% off their first 3 months!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" style="background: #2c3e50; color: white;">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-4">
+                    <h3 class="title is-4 has-text-white">ConvFlow</h3>
+                    <p class="has-text-white-bis">
+                        Transform any document into perfect Markdown. Save time, increase productivity, and focus on what matters most.
+                    </p>
+                    <div class="buttons" style="margin-top: 1rem;">
+                        <a class="button is-small is-white is-outlined" href="#twitter">
+                            <span class="icon"><i class="fab fa-twitter"></i></span>
+                        </a>
+                        <a class="button is-small is-white is-outlined" href="#linkedin">
+                            <span class="icon"><i class="fab fa-linkedin"></i></span>
+                        </a>
+                        <a class="button is-small is-white is-outlined" href="#github">
+                            <span class="icon"><i class="fab fa-github"></i></span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="column is-2">
+                    <h4 class="title is-6 has-text-white">Product</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><a href="#features" class="has-text-white-bis">Features</a></li>
+                        <li><a href="#pricing" class="has-text-white-bis">Pricing</a></li>
+                        <li><a href="#api" class="has-text-white-bis">API Docs</a></li>
+                        <li><a href="#integrations" class="has-text-white-bis">Integrations</a></li>
+                    </ul>
+                </div>
+                
+                <div class="column is-2">
+                    <h4 class="title is-6 has-text-white">Company</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><a href="#about" class="has-text-white-bis">About Us</a></li>
+                        <li><a href="#blog" class="has-text-white-bis">Blog</a></li>
+                        <li><a href="#careers" class="has-text-white-bis">Careers</a></li>
+                        <li><a href="#contact" class="has-text-white-bis">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="column is-2">
+                    <h4 class="title is-6 has-text-white">Support</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><a href="#help" class="has-text-white-bis">Help Center</a></li>
+                        <li><a href="#tutorials" class="has-text-white-bis">Tutorials</a></li>
+                        <li><a href="#status" class="has-text-white-bis">System Status</a></li>
+                        <li><a href="#community" class="has-text-white-bis">Community</a></li>
+                    </ul>
+                </div>
+                
+                <div class="column is-2">
+                    <h4 class="title is-6 has-text-white">Legal</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><a href="#privacy" class="has-text-white-bis">Privacy Policy</a></li>
+                        <li><a href="#terms" class="has-text-white-bis">Terms of Service</a></li>
+                        <li><a href="#security" class="has-text-white-bis">Security</a></li>
+                        <li><a href="#gdpr" class="has-text-white-bis">GDPR</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr style="background-color: #34495e;">
+            
+            <div class="has-text-centered">
+                <p class="has-text-white-bis">
+                    © 2025 ConvFlow. All rights reserved. Made with ❤️ for better documentation.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Navbar burger toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+            
+            if (navbarBurgers.length > 0) {
+                navbarBurgers.forEach(el => {
+                    el.addEventListener('click', () => {
+                        const target = el.dataset.target;
+                        const targetElement = document.getElementById(target) || el.nextElementSibling;
+                        
+                        el.classList.toggle('is-active');
+                        targetElement.classList.toggle('is-active');
+                    });
+                });
+            }
+        });
+
+        // Countdown timer
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const deadline = now + (2 * 24 * 60 * 60 * 1000) + (14 * 60 * 60 * 1000) + (32 * 60 * 1000) + (45 * 1000); // 2 days, 14 hours, 32 minutes, 45 seconds from now
+            
+            const timeLeft = deadline - now;
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            
+            if (timeLeft < 0) {
+                document.querySelector('.countdown-timer').style.display = 'none';
+            }
+        }
+        
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animate stats counters when they come into view
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stats-counter');
+            counters.forEach(counter => {
+                const target = counter.textContent;
+                const isInView = counter.getBoundingClientRect().top < window.innerHeight;
+                
+                if (isInView && !counter.classList.contains('animated')) {
+                    counter.classList.add('animated');
+                    let current = 0;
+                    const increment = target.includes('K') ? 50 : target.includes('★') ? 0.1 : 10;
+                    const finalNumber = parseFloat(target.replace(/[^\d.]/g, ''));
+                    
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= finalNumber) {
+                            current = finalNumber;
+                            clearInterval(timer);
+                        }
+                        
+                        if (target.includes('K')) {
+                            counter.textContent = Math.floor(current / 1000) + 'K+';
+                        } else if (target.includes('★')) {
+                            counter.textContent = current.toFixed(1) + '★';
+                        } else {
+                            counter.textContent = Math.floor(current).toLocaleString();
+                        }
+                    }, 50);
+                }
+            });
+        }
+
+        // Trigger animations on scroll
+        window.addEventListener('scroll', animateCounters);
+        
+        // Track CTA clicks (for analytics)
+        document.querySelectorAll('.cta-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Add your analytics tracking here
+                console.log('CTA clicked:', this.href);
+                
+                // Example: gtag('event', 'click', { event_category: 'CTA', event_label: 'signup' });
+            });
+        });
+
+        // Add loading states for form submissions
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"], input[type="submit"]');
+                if (submitButton) {
+                    submitButton.classList.add('is-loading');
+                    submitButton.disabled = true;
+                }
+            });
+        });
+
+        // Scarcity animation for urgency elements
+        function updateScarcity() {
+            const scarcityElements = document.querySelectorAll('.scarcity-text');
+            scarcityElements.forEach(element => {
+                if (element.textContent.includes('Only')) {
+                    const currentNumber = parseInt(element.textContent.match(/\d+/)[0]);
+                    if (Math.random() < 0.1 && currentNumber > 10) { // 10% chance to decrease
+                        const newNumber = currentNumber - 1;
+                        element.textContent = element.textContent.replace(/\d+/, newNumber);
+                    }
+                }
+            });
+        }
+
+        // Update scarcity numbers occasionally
+        setInterval(updateScarcity, 30000); // Every 30 seconds
+    </script>
+
+    <!-- Schema.org structured data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "ConvFlow",
+        "description": "Convert any file to Markdown format. Transform PDFs, Word docs, Excel files, images, and audio into standardized, searchable, version control-friendly Markdown documentation.",
+        "url": "https://convflow.com",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "features": [
+            "Markdown format conversion",
+            "Document standardization", 
+            "Version control integration",
+            "AI-powered structure recognition",
+            "Enterprise documentation automation"
+        ],
+        "offers": {
+            "@type": "Offer",
+            "price": "29",
+            "priceCurrency": "USD",
+            "priceValidUntil": "2025-12-31"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "reviewCount": "1247"
+        }
+    }
+    </script>
+
+    <!-- FAQ Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What exactly is Markdown and why should my company use it?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Markdown is a lightweight, text-based format that's human-readable and universally compatible. It's the standard for technical documentation, used by GitHub, Reddit, Stack Overflow, and thousands of companies. Benefits include: version control compatibility, platform independence, future-proofing, searchability, and developer-friendly workflows."
+                }
+            },
+            {
+                "@type": "Question", 
+                "name": "What file formats do you convert to Markdown?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "We support PDF, Microsoft Word, Excel, PowerPoint, images (JPG, PNG, GIF), audio files (MP3, WAV), video files (MP4, AVI), text files, and many more. Our AI extracts text, structure, and formatting from virtually any document and converts it to clean, standards-compliant Markdown."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How does Markdown help with version control and collaboration?", 
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Unlike binary formats (PDF, Word), Markdown is plain text, making it perfect for Git version control. You can track changes line-by-line, create branches for different document versions, merge contributions from multiple authors, and maintain a complete audit trail of all document changes."
+                }
+            }
+        ]
+    }
+    </script>
+
+    <!-- Organization Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization", 
+        "name": "ConvFlow",
+        "url": "https://convflow.com",
+        "description": "Enterprise document automation platform specializing in Markdown format conversion",
+        "applicationCategory": "Document Management Software"
+    }
+    </script>
+</body>
+</html>
