@@ -111,17 +111,11 @@ const Header: React.FC = () => {
               </div>
             ) : (
               <div className="hidden md:flex items-center space-x-4">
-                <Link
-                  to="/login"
+                <button
+                  onClick={() => login()}
                   className="text-gray-700 hover:text-blue-600 transition-colors"
                 >
                   Login
-                </Link>
-                <button
-                  onClick={() => login()}
-                  className="text-green-600 hover:text-green-700 transition-colors font-medium"
-                >
-                  Keycloak Login
                 </button>
                 <Link
                   to="/register"
@@ -195,13 +189,15 @@ const Header: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Link 
-                    to="/login" 
-                    className="text-gray-700 hover:text-blue-600 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
+                  <button 
+                    onClick={() => {
+                      login();
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-gray-700 hover:text-blue-600 transition-colors text-left"
                   >
                     Login
-                  </Link>
+                  </button>
                   <Link 
                     to="/register" 
                     className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-center hover:from-blue-700 hover:to-purple-700 transition-all duration-300"

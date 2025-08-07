@@ -19,8 +19,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles }) => {
   }
 
   if (!isAuthenticated || !user) {
+    console.log('ProtectedRoute: Unauthorized access attempt, redirecting to login');
+    // Remover estado de autenticação para forçar reautenticação
+    sessionStorage.removeItem('keycloak-authenticated');
     return <Navigate to="/login" replace />;
   }
+  
+  console.log('ProtectedRoute: User authenticated, granting access', user?.username);
 
   // Verificar roles se especificadas
   if (roles && roles.length > 0 && !hasAnyRole(roles)) {

@@ -18,7 +18,7 @@ const KeycloakDebug: React.FC = () => {
         <div>Error: {error || 'none'}</div>
         <div>User: {user ? user.username : 'none'}</div>
         <div>Token: {token ? 'present' : 'none'}</div>
-        <div>Keycloak URL: {import.meta.env.VITE_KEYCLOAK_URL}</div>
+        <div>Keycloak URL: {import.meta.env.VITE_KEYCLOAK_URL_BASE}</div>
         <div>Realm: {import.meta.env.VITE_KEYCLOAK_REALM}</div>
         <div>Client ID: {import.meta.env.VITE_KEYCLOAK_CLIENT_ID}</div>
       </div>

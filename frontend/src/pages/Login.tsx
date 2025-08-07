@@ -2,12 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useKeycloakAuth } from '../contexts/KeycloakAuthContext';
 import { useToast } from '../contexts/ToastContext';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login, user, isAuthenticated } = useKeycloakAuth();
   const { addToast } = useToast();
@@ -20,23 +16,18 @@ const Login: React.FC = () => {
     }
   }, [isAuthenticated, user, navigate]);
 
-  const handleKeycloakLogin = async () => {
+  const handleLogin = async () => {
     try {
       setIsLoading(true);
-      console.log('Starting Keycloak login...');
+      console.log('Starting authentication...');
       await login();
       // O usuário será redirecionado para o Keycloak, então o sucesso será tratado na volta
-      console.log('Login initiated, redirecting to Keycloak...');
+      console.log('Login initiated, redirecting to authentication server...');
     } catch (error) {
-      console.error('Keycloak login failed:', error);
+      console.error('Authentication failed:', error);
       addToast('Failed to initiate login. Please check your connection.', 'error');
       setIsLoading(false);
     }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    addToast('Please use Keycloak authentication for secure login.', 'info');
   };
 
   return (
@@ -53,11 +44,10 @@ const Login: React.FC = () => {
             </Link>
           </p>
           
-          {/* Keycloak Authentication */}
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-800 mb-3">🔐 Secure Authentication</h3>
+          {/* Authentication Button */}
+          <div className="mt-8">
             <button
-              onClick={handleKeycloakLogin}
+              onClick={handleLogin}
               disabled={isLoading}
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
@@ -67,11 +57,11 @@ const Login: React.FC = () => {
                   Connecting...
                 </div>
               ) : (
-                'Sign in with Keycloak'
+                'Sign in'
               )}
             </button>
-            <p className="mt-2 text-xs text-blue-600 text-center">
-              Centralized authentication for enhanced security
+            <p className="mt-3 text-xs text-gray-600 text-center">
+              Secure authentication powered by our identity service
             </p>
           </div>
         </div>

@@ -4,7 +4,8 @@ echo    ConvFlow - Starting Services
 echo ========================================
 echo.
 
-cd /d "%~dp0"
+REM Ir para a raiz do projeto (2 níveis acima de scripts/start/)
+cd /d "%~dp0..\.."
 
 REM Verificar se já existe uma instância rodando
 echo Verificando instancias existentes...
@@ -41,14 +42,13 @@ if %FRONTEND_RUNNING% == 0 (
 echo [1/2] Starting FastAPI Backend (Port 8000)...
 echo Backend provides Keycloak user management API and file conversion
 echo.
-start "ConvFlow Backend" cmd /k "uv run python src/main.py"
+start "ConvFlow Backend" cmd /k "cd /d %~dp0..\.. && uv run python src/main.py"
 timeout /t 3 /nobreak >nul
 
 echo [2/2] Starting React Frontend (Port 5173)...
 echo Frontend uses Keycloak for authentication and backend API for operations
 echo.
-cd frontend
-start "ConvFlow Frontend" cmd /k "npm run dev"
+start "ConvFlow Frontend" cmd /k "cd /d %~dp0..\..\frontend && npm run dev"
 
 echo.
 echo ========================================

@@ -1,33 +1,24 @@
 // API Configuration
-export const CONVERSION_API_BASE_URL = (import.meta as any).env?.VITE_MARKDOWN_API_URL || 'https://conv-flow-mardown-gbekgqefeqe5bud4.eastus-01.azurewebsites.net';
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000';
 
-// Local Backend API for authentication (connects to Neon PostgreSQL)
-export const LOCAL_BACKEND_URL = 'http://localhost:8000';
+// Keycloak Auth Configuration
+export const KEYCLOAK_BASE_URL = (import.meta as any).env?.VITE_KEYCLOAK_URL_BASE || 'https://keycloak-leaftix-g4gufcg6acgnbbar.eastus2-01.azurewebsites.net';
+export const KEYCLOAK_REALM = (import.meta as any).env?.VITE_KEYCLOAK_REALM || 'convflow';
+export const KEYCLOAK_CLIENT_ID = (import.meta as any).env?.VITE_KEYCLOAK_CLIENT_ID || 'cvclient';
 
-// Stack Auth Configuration for authentication
-export const STACK_PROJECT_ID = (import.meta as any).env?.VITE_STACK_PROJECT_ID || '850610a8-d033-4fc9-a3e5-f2511f7ee7bb';
-export const STACK_PUBLISHABLE_KEY = (import.meta as any).env?.VITE_STACK_PUBLISHABLE_CLIENT_KEY || 'pk_8536052_2O03IH25LUZXV50QPLZ6JWS19HPV75A6';
-
-// Stack Auth Base URL - Voltando a incluir o project ID
-export const AUTH_BASE_URL = `https://api.stack-auth.com/api/v1/projects/${STACK_PROJECT_ID}`;
+// Import keycloakService for authentication
+import { keycloakService } from '../services/keycloakService';
 
 // API Endpoints
 export const API_ENDPOINTS = {
-  // Core conversion endpoints (use conversion API)
+  // Core conversion endpoints
   HEALTH: '/health',
   AI_STATUS: '/ai-status',
   CONVERT_FILE: '/convert-file/',
   CONVERT_MULTIPLE: '/convert-to-markdown/',
   SUPPORTED_FORMATS: '/supported-formats/',
   
-  // Authentication endpoints (use Stack Auth)
-  AUTH_LOGIN: '/auth/login', // Tentando /auth/login (mais comum)
-  AUTH_REGISTER: '/auth/signup', // Tentando signup ao invés de users
-  AUTH_REFRESH: '/auth/refresh',
-  AUTH_LOGOUT: '/auth/signout',
-  AUTH_PROFILE: '/auth/me',
-  
-  // User management endpoints (use Stack Auth)
+  // User management endpoints
   USER_PROFILE: '/users/me',
   USER_USAGE: '/users/me/usage',
   USER_HISTORY: '/users/me/history',
@@ -36,40 +27,24 @@ export const API_ENDPOINTS = {
 
 // Build full URL for an endpoint
 export const buildApiUrl = (endpoint: string): string => {
-  // Authentication endpoints use Neon Auth (Stack Auth)
-  if (endpoint.startsWith('/auth/') || endpoint.startsWith('/users')) {
-    return `${AUTH_BASE_URL}${endpoint}`;
-  }
-  // Conversion endpoints use Azure API (ONLY for file conversion)
-  return `${CONVERSION_API_BASE_URL}${endpoint}`;
+  // All endpoints now use our centralized API with Keycloak authentication
+  return `${API_BASE_URL}${endpoint}`;
 };
 
 // Common headers for API requests
-export const getApiHeaders = (includeAuth: boolean = false, endpoint?: string): HeadersInit => {
+export const getApiHeaders = (includeAuth: boolean = false): HeadersInit => {
   const headers: HeadersInit = {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
   };
   
-  // For Stack Auth endpoints, use Stack Auth headers
-  if (endpoint && (endpoint.startsWith('/auth/') || endpoint.startsWith('/users'))) {
-    headers['x-stack-publishable-client-key'] = STACK_PUBLISHABLE_KEY;
-    headers['x-stack-project-id'] = STACK_PROJECT_ID;
-    headers['x-stack-access-type'] = 'client'; // Header obrigatório para Stack Auth
+  // Add authorization token from Keycloak if needed
+  if (includeAuth) {
+    // Use Keycloak token directly from the imported service
+    const token = keycloakService.getToken();
     
-    if (includeAuth) {
-      const token = localStorage.getItem('convflow_token');
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-    }
-  } else {
-    // For conversion endpoints, use regular authorization
-    if (includeAuth) {
-      const token = localStorage.getItem('convflow_token');
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
   }
   
@@ -119,36 +94,19 @@ export interface SupportedFormatsResponse {
   [key: string]: string;
 }
 
-// Authentication types
-export interface LoginRequest {
+// User information interface (aligned with Keycloak)
+export interface User {
+  id: string;
   email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
   firstName: string;
   lastName: string;
-}
-
-export interface AuthResponse {
-  user: User;
-  token: string;
-  refreshToken: string;
-  expiresIn: number;
-}
-
-// Stack Auth specific response interface
-export interface StackAuthResponse {
-  id?: string;
-  email?: string;
-  display_name?: string;
-  access_token?: string;
-  refresh_token?: string;
-  token_type?: string;
-  expires_in?: number;
-  user?: User;
+  plan: 'basic' | 'premium' | 'unlimited';
+  subscriptionStatus: 'trial' | 'active' | 'expired' | 'cancelled';
+  trialEndDate?: string;
+  monthlyUsage: number;
+  monthlyLimit: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface User {
@@ -165,17 +123,8 @@ export interface User {
   updatedAt: string;
 }
 
-export interface RefreshTokenRequest {
-  refreshToken: string;
-}
-
 export interface ProfileUpdateRequest {
   firstName?: string;
   lastName?: string;
   email?: string;
-}
-
-export interface PasswordChangeRequest {
-  currentPassword: string;
-  newPassword: string;
 }

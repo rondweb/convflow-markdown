@@ -16,6 +16,7 @@ const initOptions = {
   pkceMethod: 'S256' as const, // Usar PKCE para segurança adicional
   checkLoginIframe: false, // Desabilitar iframe check para evitar problemas de CORS
   enableLogging: true, // Habilitar logs para debug
+  redirectUri: window.location.origin + '/dashboard', // Redirecionar para o dashboard após autenticação
 };
 
 // Instância do Keycloak
@@ -47,11 +48,16 @@ class KeycloakService {
       console.log('Initializing Keycloak with config:', keycloakConfig);
       console.log('Init options:', initOptions);
       
+      // Adicionar evento de log para depurar fluxo de autenticação
+      window.addEventListener('keycloak-callback', () => {
+        console.log('Keycloak callback event received');
+      });
+      
       const authenticated = await keycloak.init(initOptions);
       this.initialized = true;
 
       console.log('Keycloak initialized. Authenticated:', authenticated);
-      console.log('Token:', keycloak.token);
+      console.log('Token:', keycloak.token ? 'Present' : 'Missing');
       console.log('User info:', keycloak.tokenParsed);
 
       // Configurar eventos
@@ -99,8 +105,11 @@ class KeycloakService {
     console.log('Attempting to login...');
     
     // Usar redirecionamento em vez de popup para melhor compatibilidade
+    console.log('Current location.origin:', window.location.origin);
+    
+    // Ajustado para usar location.origin corretamente
     return keycloak.login({
-      redirectUri: window.location.origin + '/dashboard'
+      redirectUri: `${window.location.origin}/dashboard`
     });
   }
 
@@ -112,9 +121,12 @@ class KeycloakService {
     console.log('Attempting to register...');
     
     // Redirecionar para página de registro do Keycloak
+    console.log('Current location.origin:', window.location.origin);
+    
+    // Ajustado para usar location.origin corretamente
     return keycloak.login({
       action: 'register',
-      redirectUri: window.location.origin + '/dashboard'
+      redirectUri: `${window.location.origin}/dashboard`
     });
   }
 
@@ -123,17 +135,28 @@ class KeycloakService {
     if (!this.initialized) {
       throw new Error('Keycloak not initialized');
     }
-    return keycloak.logout();
+    // Adicionar URL de redirecionamento para logout
+    return keycloak.logout({
+      redirectUri: window.location.origin
+    });
   }
 
   // Verificar se está autenticado
   isAuthenticated(): boolean {
-    return keycloak.authenticated || false;
+    const authenticated = keycloak.authenticated || false;
+    
+    // Armazenar estado de autenticação para verificações entre páginas
+    if (authenticated) {
+      sessionStorage.setItem('keycloak-authenticated', 'true');
+    }
+    
+    return authenticated;
   }
 
   // Obter dados do usuário
   getUser(): KeycloakUser | null {
     if (!this.isAuthenticated() || !keycloak.tokenParsed) {
+      sessionStorage.removeItem('keycloak-authenticated');
       return null;
     }
 
