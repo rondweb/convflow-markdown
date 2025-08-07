@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Auth Test - Header x-stack-access-type</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; background: #007acc; color: white; border: none; border-radius: 5px; }
+        input { padding: 8px; margin: 5px; width: 250px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+        #results { margin-top: 20px; max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>✅ Stack Auth Test - Header Correto</h1>
+    
+    <div class="section success">
+        <h3>🔧 Correção Aplicada:</h3>
+        <p><strong>Header adicionado:</strong> <code>x-stack-access-type: client</code></p>
+        <p><strong>Endpoint:</strong> <code>https://api.stack-auth.com/api/v1/auth/signup</code></p>
+    </div>
+
+    <div class="section info">
+        <h3>📝 Teste de Registro:</h3>
+        <input type="email" id="testEmail" placeholder="Email" value="test@convflow.com">
+        <input type="password" id="testPassword" placeholder="Senha" value="Test123456!">
+        <input type="text" id="testName" placeholder="Nome" value="Test User">
+        <br>
+        <button onclick="testStackAuthRegistration()">🚀 Testar Registro Stack Auth</button>
+        <button onclick="testStackAuthLogin()">🔑 Testar Login Stack Auth</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const PROJECT_ID = '850610a8-d033-4fc9-a3e5-f2511f7ee7bb';
+        const PUBLISHABLE_KEY = 'pck_rz58p82a8cd930c2q491km3v4nrh2vzntxw8f736cry8g';
+        const BASE_URL = 'https://api.stack-auth.com/api/v1';
+
+        function logResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `section ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.insertBefore(div, results.firstChild);
+            console.log(message);
+        }
+
+        async function makeStackAuthRequest(endpoint, method = 'POST', data = null) {
+            try {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'x-stack-publishable-client-key': PUBLISHABLE_KEY,
+                    'x-stack-project-id': PROJECT_ID,
+                    'x-stack-access-type': 'client' // Header corrigido!
+                };
+
+                logResult(`🔗 URL: <code>${BASE_URL}${endpoint}</code>`, 'info');
+                logResult(`📋 Headers: <pre>${JSON.stringify(headers, null, 2)}</pre>`, 'info');
+
+                const config = {
+                    method,
+                    headers
+                };
+
+                if (data) {
+                    config.body = JSON.stringify(data);
+                    logResult(`📤 Body: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'info');
+                }
+
+                const response = await fetch(`${BASE_URL}${endpoint}`, config);
+                
+                let responseText = '';
+                try {
+                    responseText = await response.text();
+                } catch (e) {
+                    responseText = 'Erro ao ler resposta';
+                }
+
+                let responseData = {};
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    responseData = { raw: responseText };
+                }
+
+                const statusClass = response.ok ? 'success' : 'error';
+                
+                logResult(
+                    `📊 <strong>${response.status} ${response.statusText}</strong><br>` +
+                    `<pre>${JSON.stringify(responseData, null, 2)}</pre>`,
+                    statusClass
+                );
+
+                return { status: response.status, data: responseData, ok: response.ok };
+            } catch (error) {
+                logResult(`❌ Erro na requisição: ${error.message}`, 'error');
+                return { error: error.message };
+            }
+        }
+
+        async function testStackAuthRegistration() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            const name = document.getElementById('testName').value;
+
+            logResult(`🚀 Testando registro Stack Auth com header correto...`, 'info');
+
+            const result = await makeStackAuthRequest('/auth/signup', 'POST', {
+                email: email,
+                password: password,
+                display_name: name
+            });
+
+            if (result.ok) {
+                logResult(`🎉 SUCESSO! Usuário registrado no Stack Auth!`, 'success');
+                logResult(`💾 Salve este token se retornado: ${JSON.stringify(result.data)}`, 'success');
+            } else {
+                logResult(`❌ Falha no registro: Status ${result.status}`, 'error');
+                if (result.data) {
+                    logResult(`📋 Detalhes: ${JSON.stringify(result.data)}`, 'error');
+                }
+            }
+        }
+
+        async function testStackAuthLogin() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+
+            logResult(`🔑 Testando login Stack Auth...`, 'info');
+
+            const result = await makeStackAuthRequest('/auth/signin', 'POST', {
+                email: email,
+                password: password
+            });
+
+            if (result.ok) {
+                logResult(`🎉 SUCESSO! Login realizado no Stack Auth!`, 'success');
+                logResult(`💾 Token recebido: ${JSON.stringify(result.data)}`, 'success');
+            } else {
+                logResult(`❌ Falha no login: Status ${result.status}`, 'error');
+                if (result.data) {
+                    logResult(`📋 Detalhes: ${JSON.stringify(result.data)}`, 'error');
+                }
+            }
+        }
+
+        // Teste automático ao carregar
+        logResult(`🎯 Teste carregado com header x-stack-access-type correto!`, 'success');
+        logResult(`📌 Pronto para testar Stack Auth com as correções aplicadas`, 'info');
+    </script>
+</body>
+</html>

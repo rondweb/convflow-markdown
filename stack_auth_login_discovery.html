@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Auth Login Endpoint Discovery</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; background: #007acc; color: white; border: none; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 11px; }
+        #results { margin-top: 20px; max-height: 400px; overflow-y: auto; }
+        .endpoint-test { margin: 5px 0; padding: 5px; background: #f8f9fa; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Stack Auth Login Endpoint Discovery</h1>
+    
+    <div class="section error">
+        <h3>❌ Problema Atual:</h3>
+        <p><strong>Login Endpoint 404:</strong> <code>/auth/signin</code> não existe</p>
+        <p><strong>Registro funcionando:</strong> <code>/auth/signup</code> ✅</p>
+    </div>
+
+    <div class="section info">
+        <h3>🧪 Endpoints para Testar:</h3>
+        <div class="endpoint-test">✅ <code>/auth/signup</code> (já confirmado)</div>
+        <div class="endpoint-test">❓ <code>/auth/sign-in</code> (com hífen)</div>
+        <div class="endpoint-test">❓ <code>/auth/login</code> (nome alternativo)</div>
+        <div class="endpoint-test">❓ <code>/auth/sign_in</code> (com underscore)</div>
+        <div class="endpoint-test">❓ <code>/session/signin</code> (namespace diferente)</div>
+        <div class="endpoint-test">❓ <code>/users/signin</code> (sob users)</div>
+    </div>
+
+    <button onclick="discoverLoginEndpoint()">🚀 Descobrir Endpoint de Login</button>
+    <button onclick="testKnownEndpoints()">🧪 Testar Endpoints Conhecidos</button>
+    <button onclick="testWithRealCredentials()">🔑 Testar com Credenciais Reais</button>
+
+    <div id="results"></div>
+
+    <script>
+        const PROJECT_ID = '850610a8-d033-4fc9-a3e5-f2511f7ee7bb';
+        const PUBLISHABLE_KEY = 'pck_rz58p82a8cd930c2q491km3v4nrh2vzntxw8f736cry8g';
+        const BASE_URL = 'https://api.stack-auth.com/api/v1';
+
+        function logResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `section ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.insertBefore(div, results.firstChild);
+            console.log(message);
+        }
+
+        async function testEndpoint(endpoint, method = 'POST', data = null, description = '') {
+            try {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'x-stack-publishable-client-key': PUBLISHABLE_KEY,
+                    'x-stack-project-id': PROJECT_ID,
+                    'x-stack-access-type': 'client'
+                };
+
+                const config = { method, headers };
+                if (data) {
+                    config.body = JSON.stringify(data);
+                }
+
+                logResult(`🧪 ${description || endpoint}: Testando ${method} ${BASE_URL}${endpoint}`, 'info');
+
+                const response = await fetch(`${BASE_URL}${endpoint}`, config);
+                const text = await response.text();
+                
+                let responseData;
+                try {
+                    responseData = JSON.parse(text);
+                } catch {
+                    responseData = { raw: text };
+                }
+
+                if (response.status === 404) {
+                    logResult(`❌ ${endpoint}: 404 - Endpoint não existe`, 'error');
+                    return { status: 404, exists: false };
+                } else {
+                    const statusClass = response.ok ? 'success' : 'warning';
+                    logResult(
+                        `📊 ${endpoint}: ${response.status} ${response.statusText}<br>` +
+                        `<pre>${JSON.stringify(responseData, null, 2)}</pre>`,
+                        statusClass
+                    );
+                    return { status: response.status, exists: true, data: responseData };
+                }
+            } catch (error) {
+                logResult(`❌ ${endpoint}: Erro - ${error.message}`, 'error');
+                return { error: error.message };
+            }
+        }
+
+        async function discoverLoginEndpoint() {
+            logResult('🔍 Descobrindo endpoint de login...', 'info');
+
+            const loginEndpoints = [
+                { endpoint: '/auth/sign-in', description: 'Auth Sign-In (com hífen)' },
+                { endpoint: '/auth/login', description: 'Auth Login (simples)' },
+                { endpoint: '/auth/sign_in', description: 'Auth Sign-In (underscore)' },
+                { endpoint: '/session/signin', description: 'Session Signin' },
+                { endpoint: '/users/signin', description: 'Users Signin' },
+                { endpoint: '/users/login', description: 'Users Login' },
+                { endpoint: '/auth/authenticate', description: 'Auth Authenticate' }
+            ];
+
+            const testCredentials = {
+                email: 'test@example.com',
+                password: 'Test123456!'
+            };
+
+            for (const { endpoint, description } of loginEndpoints) {
+                const result = await testEndpoint(endpoint, 'POST', testCredentials, description);
+                
+                if (result.exists && result.status !== 404) {
+                    logResult(`🎉 ENDPOINT VÁLIDO ENCONTRADO: ${endpoint}`, 'success');
+                    logResult(`📋 Use este endpoint para login: ${endpoint}`, 'success');
+                    
+                    // Se o status for 400/401/422, é provável que seja o endpoint correto
+                    if ([400, 401, 422].includes(result.status)) {
+                        logResult(`✅ Endpoint ${endpoint} aceita dados de login (mesmo com credenciais inválidas)`, 'success');
+                        return endpoint;
+                    }
+                }
+                
+                // Pausa entre requests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            logResult('❌ Nenhum endpoint de login válido encontrado', 'error');
+            return null;
+        }
+
+        async function testKnownEndpoints() {
+            logResult('🧪 Testando endpoints conhecidos...', 'info');
+
+            const endpoints = [
+                { endpoint: '/auth/signup', method: 'POST', description: 'Signup (conhecido funcional)' },
+                { endpoint: '/auth/signin', method: 'POST', description: 'Signin (atual - 404)' },
+                { endpoint: '/auth/sign-in', method: 'POST', description: 'Sign-in (alternativo)' },
+                { endpoint: '/auth/me', method: 'GET', description: 'Profile (me)' },
+                { endpoint: '/users/me', method: 'GET', description: 'Users Me' }
+            ];
+
+            for (const { endpoint, method, description } of endpoints) {
+                await testEndpoint(endpoint, method, null, description);
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+
+        async function testWithRealCredentials() {
+            logResult('🔑 Testando endpoints com credenciais mais realistas...', 'info');
+
+            const endpoints = ['/auth/sign-in', '/auth/login', '/session/signin'];
+            const credentials = {
+                email: 'user@convflow.com',
+                password: 'RealPassword123!'
+            };
+
+            for (const endpoint of endpoints) {
+                await testEndpoint(endpoint, 'POST', credentials, `Login com credenciais reais`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        logResult('🎯 Descoberta de endpoints carregada!', 'success');
+        logResult('📌 Clique em "Descobrir Endpoint de Login" para encontrar o correto', 'info');
+    </script>
+</body>
+</html>

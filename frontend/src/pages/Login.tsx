@@ -41,6 +41,25 @@ const Login: React.FC = () => {
               create a new account
             </Link>
           </p>
+          
+          {/* Neon Auth Quick Access */}
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="text-sm font-medium text-blue-800 mb-2">🚀 Quick Neon Auth Access</h3>
+            <div className="flex gap-2 justify-center">
+              <Link 
+                to="/handler/sign-in" 
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Sign In (Neon Auth)
+              </Link>
+              <Link 
+                to="/handler/sign-up" 
+                className="inline-flex items-center px-3 py-2 border border-blue-600 text-sm leading-4 font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Sign Up (Neon Auth)
+              </Link>
+            </div>
+          </div>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

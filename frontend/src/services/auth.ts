@@ -5,12 +5,12 @@ import {
   LoginRequest,
   RegisterRequest,
   AuthResponse,
-  RefreshTokenRequest,
   ProfileUpdateRequest,
   PasswordChangeRequest,
   User
 } from '../config/api';
 import { fallbackAuthService } from './fallbackAuth';
+import { stackAuthService } from './stackAuth';
 
 class AuthError extends Error {
   constructor(public status: number, message: string) {
@@ -23,12 +23,38 @@ class AuthService {
   private tokenKey = 'convflow_token';
   private refreshTokenKey = 'convflow_refresh_token';
   private userKey = 'convflow_user';
+  private useStackAuth = true; // Use Stack Auth by default
   private useFallback = false;
 
   constructor() {
-    // Check if we should use fallback (can be configured via env var)
-    this.useFallback = (import.meta as any).env?.VITE_USE_FALLBACK_AUTH === 'true';
+    // Use Neon Auth (Stack Auth) - the real authentication service
+    this.useFallback = false;
+    this.useStackAuth = true;
   }
+
+  // Try to initialize Stack Auth connection
+  // private async initializeStackAuth(): Promise<void> {
+  //   if (this.useFallback) return;
+    
+  //   try {
+  //     // Test Stack Auth connectivity with a simple request
+  //     const response = await fetch(`${AUTH_BASE_URL}/health`, {
+  //       method: 'GET',
+  //       headers: {
+  //         'X-Stack-Publishable-Key': STACK_PUBLISHABLE_KEY,
+  //       },
+  //     });
+      
+  //     if (response.ok || response.status === 404) {
+  //       // Stack Auth is available (404 is expected for /health endpoint)
+  //       this.useStackAuth = true;
+  //       console.log('Stack Auth initialized successfully');
+  //     }
+  //   } catch {
+  //     console.warn('Stack Auth not available, using fallback authentication');
+  //     // Keep useStackAuth as false
+  //   }
+  // }
 
   // Generic API request with error handling
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -66,62 +92,44 @@ class AuthService {
 
   // Login user
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    // Try real API first, fallback to mock if it fails
-    try {
-      if (this.useFallback) {
-        return await fallbackAuthService.login(credentials);
-      }
-
-      const response = await this.makeRequest<AuthResponse>(API_ENDPOINTS.AUTH_LOGIN, {
-        method: 'POST',
-        body: JSON.stringify(credentials),
-      });
-
-      // Store tokens and user data
-      this.setTokens(response.token, response.refreshToken);
-      this.setUser(response.user);
-
-      return response;
-    } catch (error) {
-      // If real API fails, try fallback
-      if (!this.useFallback && error instanceof AuthError && (error.status === 0 || error.status >= 500)) {
-        console.warn('Real API unavailable, using fallback auth');
-        return await fallbackAuthService.login(credentials);
-      }
-      throw error;
+    // Use Neon Auth (Stack Auth) service
+    if (this.useStackAuth) {
+      return await stackAuthService.login(credentials);
     }
+
+    // Fallback to local auth if Neon Auth is disabled
+    if (this.useFallback) {
+      return await fallbackAuthService.login(credentials);
+    }
+
+    throw new AuthError(503, 'No authentication service available');
   }
 
   // Register new user
   async register(userData: RegisterRequest): Promise<AuthResponse> {
-    // Try real API first, fallback to mock if it fails
-    try {
-      if (this.useFallback) {
-        return await fallbackAuthService.register(userData);
-      }
-
-      const response = await this.makeRequest<AuthResponse>(API_ENDPOINTS.AUTH_REGISTER, {
-        method: 'POST',
-        body: JSON.stringify(userData),
-      });
-
-      // Store tokens and user data
-      this.setTokens(response.token, response.refreshToken);
-      this.setUser(response.user);
-
-      return response;
-    } catch (error) {
-      // If real API fails, try fallback
-      if (!this.useFallback && error instanceof AuthError && (error.status === 0 || error.status >= 500)) {
-        console.warn('Real API unavailable, using fallback auth');
-        return await fallbackAuthService.register(userData);
-      }
-      throw error;
+    // Use Neon Auth (Stack Auth) service
+    if (this.useStackAuth) {
+      return await stackAuthService.register(userData);
     }
+
+    // Fallback to local auth if Neon Auth is disabled
+    if (this.useFallback) {
+      return await fallbackAuthService.register(userData);
+    }
+
+    throw new AuthError(503, 'No authentication service available');
   }
 
   // Refresh authentication token
   async refreshToken(): Promise<AuthResponse> {
+    if (this.useFallback) {
+      return await fallbackAuthService.refreshToken();
+    }
+
+    if (this.useStackAuth) {
+      return await stackAuthService.refreshToken();
+    }
+
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {
       throw new AuthError(401, 'No refresh token available');
@@ -147,6 +155,11 @@ class AuthService {
         return;
       }
 
+      if (this.useStackAuth) {
+        await stackAuthService.logout();
+        return;
+      }
+
       await this.makeRequest(API_ENDPOINTS.AUTH_LOGOUT, {
         method: 'POST',
       });
@@ -164,6 +177,10 @@ class AuthService {
       const user = fallbackAuthService.getUser();
       if (!user) throw new AuthError(401, 'No user session found');
       return user;
+    }
+
+    if (this.useStackAuth) {
+      return await stackAuthService.getProfile();
     }
 
     return await this.makeRequest<User>(API_ENDPOINTS.AUTH_PROFILE);
@@ -213,6 +230,10 @@ class AuthService {
       return fallbackAuthService.getUser();
     }
 
+    if (this.useStackAuth) {
+      return stackAuthService.getUser();
+    }
+
     const userData = localStorage.getItem(this.userKey);
     if (!userData) return null;
     
@@ -235,6 +256,11 @@ class AuthService {
       return;
     }
 
+    if (this.useStackAuth) {
+      stackAuthService.clearAuth();
+      return;
+    }
+
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.refreshTokenKey);
     localStorage.removeItem(this.userKey);
@@ -246,6 +272,10 @@ class AuthService {
       return fallbackAuthService.isAuthenticated();
     }
 
+    if (this.useStackAuth) {
+      return stackAuthService.isAuthenticated();
+    }
+
     return !!this.getToken() && !!this.getUser();
   }
 
@@ -253,6 +283,10 @@ class AuthService {
   async checkAndRefreshToken(): Promise<boolean> {
     if (this.useFallback) {
       return await fallbackAuthService.checkAndRefreshToken();
+    }
+
+    if (this.useStackAuth) {
+      return await stackAuthService.checkAndRefreshToken();
     }
 
     if (!this.isAuthenticated()) {
@@ -268,7 +302,7 @@ class AuthService {
         try {
           await this.refreshToken();
           return true;
-        } catch (refreshError) {
+        } catch {
           this.clearAuth();
           return false;
         }

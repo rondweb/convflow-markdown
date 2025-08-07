@@ -380,109 +380,108 @@ async def convert_single_file_to_markdown(
     
     try:
         if file_extension in IMAGE_EXTENSIONS or file_extension in AUDIO_EXTENSIONS:
-                # Use Cloudflare AI for media files
-                media_result = await process_media_file(content, file_extension, filename)
-                if media_result["success"]:
-                    conversion_successful = True
-                    response_data = {
-                        "filename": filename,
-                        "file_type": media_result["file_type"],
-                        "markdown": media_result["markdown"],
-                        "success": True,
-                        "cloudflare_ai_used": media_result["cloudflare_ai_used"]
-                    }
-                else:
-                    error_message = media_result.get('error', 'Unknown media processing error')
-                    raise HTTPException(
-                        status_code=500, 
-                        detail=f"Media processing error: {error_message}"
-                    )
+            # Use Cloudflare AI for media files
+            media_result = await process_media_file(content, file_extension, filename)
+            if media_result["success"]:
+                conversion_successful = True
+                response_data = {
+                    "filename": filename,
+                    "file_type": media_result["file_type"],
+                    "markdown": media_result["markdown"],
+                    "success": True,
+                    "cloudflare_ai_used": media_result["cloudflare_ai_used"]
+                }
             else:
-                # Use MarkItDown for document files
-                with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_extension}") as tmp_file:
-                    tmp_file.write(content)
-                    tmp_path = tmp_file.name
+                error_message = media_result.get('error', 'Unknown media processing error')
+                raise HTTPException(
+                    status_code=500, 
+                    detail=f"Media processing error: {error_message}"
+                )
+        else:
+            # Use MarkItDown for document files
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_extension}") as tmp_file:
+                tmp_file.write(content)
+                tmp_path = tmp_file.name
+            
+            try:
+                # Convert to markdown using MarkItDown
+                result = md_converter.convert(tmp_path)
+                markdown_content = result.text_content if hasattr(result, 'text_content') else str(result)
                 
-                try:
-                    # Convert to markdown using MarkItDown
-                    result = md_converter.convert(tmp_path)
-                    markdown_content = result.text_content if hasattr(result, 'text_content') else str(result)
-                    
-                    conversion_successful = True
-                    response_data = {
-                        "filename": filename,
-                        "file_type": SUPPORTED_EXTENSIONS.get(file_extension, "Unknown"),
-                        "markdown": markdown_content,
-                        "success": True,
-                        "cloudflare_ai_used": False
-                    }
-                    
-                except Exception as convert_error:
-                    error_message = str(convert_error)
-                    logger.error(f"Error converting {filename}: {convert_error}")
-                    raise HTTPException(
-                        status_code=500, 
-                        detail=f"Conversion error: {error_message}"
-                    )
+                conversion_successful = True
+                response_data = {
+                    "filename": filename,
+                    "file_type": SUPPORTED_EXTENSIONS.get(file_extension, "Unknown"),
+                    "markdown": markdown_content,
+                    "success": True,
+                    "cloudflare_ai_used": False
+                }
                 
-                finally:
-                    # Clean up temporary file
-                    if os.path.exists(tmp_path):
-                        os.unlink(tmp_path)
+            except Exception as convert_error:
+                error_message = str(convert_error)
+                logger.error(f"Error converting {filename}: {convert_error}")
+                raise HTTPException(
+                    status_code=500, 
+                    detail=f"Conversion error: {error_message}"
+                )
             
-            # Record conversion for authenticated users
-            if current_user and conversion_successful:
-                try:
-                    await db_service.record_conversion(
-                        current_user.id,
-                        filename,
-                        SUPPORTED_EXTENSIONS.get(file_extension, "Unknown"),
-                        file_size,
-                        'completed'
-                    )
-                except Exception as e:
-                    logger.warning(f"Failed to record conversion for user {current_user.id}: {e}")
-                    # Don't fail the conversion due to recording issues
-            
-            return JSONResponse(content=response_data)
-                
-        except HTTPException:
-            # Record failed conversion for authenticated users
-            if current_user and error_message:
-                try:
-                    await db_service.record_conversion(
-                        current_user.id,
-                        filename,
-                        SUPPORTED_EXTENSIONS.get(file_extension, "Unknown"),
-                        file_size,
-                        'failed',
-                        error_message
-                    )
-                except Exception as e:
-                    logger.warning(f"Failed to record failed conversion for user {current_user.id}: {e}")
-            raise
-        except Exception as e:
-            error_message = str(e)
-            logger.error(f"Error processing file {filename}: {e}")
-            
-            # Record failed conversion for authenticated users
-            if current_user:
-                try:
-                    await db_service.record_conversion(
-                        current_user.id,
-                        filename,
-                        SUPPORTED_EXTENSIONS.get(file_extension, "Unknown"),
-                        file_size,
-                        'failed',
-                        error_message
-                    )
-                except Exception as record_error:
-                    logger.warning(f"Failed to record failed conversion for user {current_user.id}: {record_error}")
-            
-            raise HTTPException(
-                status_code=500, 
-                detail=f"Processing error: {error_message}"
-            )
+            finally:
+                # Clean up temporary file
+                if os.path.exists(tmp_path):
+                    os.unlink(tmp_path)
+        
+        # Record conversion for authenticated users
+        if current_user and conversion_successful:
+            try:
+                await db_service.record_conversion(
+                    current_user.id,
+                    filename,
+                    SUPPORTED_EXTENSIONS.get(file_extension, "Unknown"),
+                    file_size,
+                    'completed'
+                )
+            except Exception as e:
+                logger.warning(f"Failed to record conversion for user {current_user.id}: {e}")
+                # Don't fail the conversion due to recording issues
+        
+        return JSONResponse(content=response_data)
+    except HTTPException:
+        # Record failed conversion for authenticated users
+        if current_user and error_message:
+            try:
+                await db_service.record_conversion(
+                    current_user.id,
+                    filename,
+                    SUPPORTED_EXTENSIONS.get(file_extension, "Unknown"),
+                    file_size,
+                    'failed',
+                    error_message
+                )
+            except Exception as e:
+                logger.warning(f"Failed to record failed conversion for user {current_user.id}: {e}")
+        raise
+    except Exception as e:
+        error_message = str(e)
+        logger.error(f"Error processing file {filename}: {e}")
+        
+        # Record failed conversion for authenticated users
+        if current_user:
+            try:
+                await db_service.record_conversion(
+                    current_user.id,
+                    filename,
+                    SUPPORTED_EXTENSIONS.get(file_extension, "Unknown"),
+                    file_size,
+                    'failed',
+                    error_message
+                )
+            except Exception as record_error:
+                logger.warning(f"Failed to record failed conversion for user {current_user.id}: {record_error}")
+        
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Processing error: {error_message}"
+        )
 
 @app.get("/supported-formats/")
 async def get_supported_formats():

@@ -110,6 +110,12 @@ const Header: React.FC = () => {
                   Login
                 </Link>
                 <Link
+                  to="/handler/sign-in"
+                  className="text-green-600 hover:text-green-700 transition-colors font-medium"
+                >
+                  Neon Auth
+                </Link>
+                <Link
                   to="/register"
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
                 >

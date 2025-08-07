@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Auth Systematic Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .section { margin: 15px 0; padding: 12px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 8px 12px; margin: 3px; cursor: pointer; background: #007acc; color: white; border: none; border-radius: 3px; font-size: 12px; }
+        pre { background: #f8f9fa; padding: 8px; border-radius: 3px; overflow-x: auto; font-size: 10px; margin: 5px 0; }
+        #results { margin-top: 20px; max-height: 500px; overflow-y: auto; }
+        .test-row { display: flex; gap: 10px; align-items: center; margin: 5px 0; }
+        .credentials { background: #f0f8ff; padding: 10px; border-radius: 5px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Stack Auth Systematic Test</h1>
+    
+    <div class="section error">
+        <h3>🐛 Problemas Identificados:</h3>
+        <p><strong>Login:</strong> HTTP 405 (Method Not Allowed) - endpoint existe, método errado</p>
+        <p><strong>Register:</strong> HTTP 404 (Not Found) - endpoint não existe</p>
+        <p><strong>Suspeita:</strong> Credenciais ou configuração incorreta</p>
+    </div>
+
+    <div class="section info">
+        <h3>🔑 Credenciais Corretas (verificadas):</h3>
+        <div class="credentials">
+            <strong>Project ID:</strong> 850610a8-d033-4fc9-a3e5-f2511f7ee7bb<br>
+            <strong>Publishable Key:</strong> pk_8536052_2O03IH25LUZXV50QPLZ6JWS19HPV75A6<br>
+            <strong>Base URL:</strong> https://api.stack-auth.com/api/v1/projects/850610a8-d033-4fc9-a3e5-f2511f7ee7bb
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>🧪 Testes Sistemáticos:</h3>
+        <button onclick="testProjectAccess()">🔍 Testar Acesso ao Projeto</button>
+        <button onclick="testAllRegistrationEndpoints()">📝 Testar Todos Endpoints de Registro</button>
+        <button onclick="testAllLoginEndpoints()">🔑 Testar Todos Endpoints de Login</button>
+        <button onclick="testWithBothKeys()">🔐 Testar Ambas Chaves</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        // Credenciais corretas
+        const PROJECT_ID = '850610a8-d033-4fc9-a3e5-f2511f7ee7bb';
+        const CORRECT_KEY = 'pk_8536052_2O03IH25LUZXV50QPLZ6JWS19HPV75A6';
+        const OLD_KEY = 'pck_rz58p82a8cd930c2q491km3v4nrh2vzntxw8f736cry8g';
+        const BASE_URL = `https://api.stack-auth.com/api/v1/projects/${PROJECT_ID}`;
+
+        function logResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `section ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.insertBefore(div, results.firstChild);
+        }
+
+        async function makeRequest(endpoint, method = 'POST', data = null, useOldKey = false) {
+            try {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'x-stack-publishable-client-key': useOldKey ? OLD_KEY : CORRECT_KEY,
+                    'x-stack-project-id': PROJECT_ID,
+                    'x-stack-access-type': 'client'
+                };
+
+                const config = { method, headers };
+                if (data && method === 'POST') {
+                    config.body = JSON.stringify(data);
+                }
+
+                const url = `${BASE_URL}${endpoint}`;
+                logResult(`🔗 ${method} ${url}`, 'info');
+
+                const response = await fetch(url, config);
+                const text = await response.text();
+                
+                let responseData;
+                try {
+                    responseData = JSON.parse(text);
+                } catch {
+                    responseData = { raw: text };
+                }
+
+                const statusClass = response.ok ? 'success' : (response.status >= 400 ? 'error' : 'warning');
+                
+                logResult(
+                    `📊 ${response.status} ${response.statusText}<br>` +
+                    `<pre>${JSON.stringify(responseData, null, 2)}</pre>`,
+                    statusClass
+                );
+
+                return { status: response.status, data: responseData, ok: response.ok };
+            } catch (error) {
+                logResult(`❌ Erro: ${error.message}`, 'error');
+                return { error: error.message };
+            }
+        }
+
+        async function testProjectAccess() {
+            logResult('🔍 Testando acesso básico ao projeto...', 'info');
+            
+            const endpoints = ['/', '/health', '/me', '/auth'];
+            
+            for (const endpoint of endpoints) {
+                await makeRequest(endpoint, 'GET');
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+
+        async function testAllRegistrationEndpoints() {
+            logResult('📝 Testando todos endpoints de registro...', 'info');
+            
+            const endpoints = [
+                '/auth/signup',
+                '/auth/sign-up', 
+                '/auth/register',
+                '/users',
+                '/users/register',
+                '/session/signup'
+            ];
+
+            const testUser = {
+                email: 'test@convflow.com',
+                password: 'Test123456!',
+                display_name: 'Test User'
+            };
+
+            for (const endpoint of endpoints) {
+                await makeRequest(endpoint, 'POST', testUser);
+                await new Promise(resolve => setTimeout(resolve, 400));
+            }
+        }
+
+        async function testAllLoginEndpoints() {
+            logResult('🔑 Testando todos endpoints de login...', 'info');
+            
+            const endpoints = [
+                '/auth/signin',
+                '/auth/sign-in',
+                '/auth/login',
+                '/session/signin',
+                '/users/signin'
+            ];
+
+            const credentials = {
+                email: 'test@convflow.com',
+                password: 'Test123456!'
+            };
+
+            // Testar POST
+            for (const endpoint of endpoints) {
+                logResult(`🧪 POST ${endpoint}`, 'info');
+                await makeRequest(endpoint, 'POST', credentials);
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            // Testar GET para alguns
+            for (const endpoint of ['/auth/signin', '/auth/sign-in']) {
+                logResult(`🧪 GET ${endpoint}`, 'info');
+                await makeRequest(endpoint + '?email=test@convflow.com&password=Test123456!', 'GET');
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+
+        async function testWithBothKeys() {
+            logResult('🔐 Testando com ambas as chaves...', 'info');
+            
+            const testData = {
+                email: 'test@convflow.com',
+                password: 'Test123456!',
+                display_name: 'Test User'
+            };
+
+            // Testar com chave correta
+            logResult(`🔑 Testando com chave correta: ${CORRECT_KEY}`, 'info');
+            await makeRequest('/auth/signup', 'POST', testData, false);
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Testar com chave antiga
+            logResult(`🔑 Testando com chave antiga: ${OLD_KEY}`, 'info');
+            await makeRequest('/auth/signup', 'POST', testData, true);
+        }
+
+        logResult('🚀 Teste sistemático carregado!', 'success');
+        logResult('📌 Execute os testes para descobrir o problema exato', 'info');
+    </script>
+</body>
+</html>

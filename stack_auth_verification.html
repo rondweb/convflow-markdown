@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stack Auth Project Verification</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .check { background: #e8f5e8; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffe8e8; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .info { background: #e8f4fd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        button { padding: 12px 20px; margin: 5px; cursor: pointer; background: #007acc; color: white; border: none; border-radius: 5px; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Stack Auth Project Verification</h1>
+    
+    <div class="info">
+        <h3>📋 Verificações Necessárias:</h3>
+        <ol>
+            <li>Verificar se o projeto Stack Auth está configurado corretamente</li>
+            <li>Confirmar se as credenciais estão corretas</li>
+            <li>Testar se a API está acessível</li>
+            <li>Descobrir os endpoints corretos</li>
+        </ol>
+    </div>
+
+    <div class="check">
+        <h3>🔑 Credenciais Atuais:</h3>
+        <p><strong>Project ID:</strong> 850610a8-d033-4fc9-a3e5-f2511f7ee7bb</p>
+        <p><strong>Publishable Key:</strong> pck_rz58p82a8cd930c2q491km3v4nrh2vzntxw8f736cry8g</p>
+    </div>
+
+    <button onclick="verifyProject()">🔍 Verificar Projeto</button>
+    <button onclick="testBasicConnectivity()">🌐 Testar Conectividade</button>
+    <button onclick="findWorkingEndpoint()">🎯 Encontrar Endpoint</button>
+
+    <div id="results"></div>
+
+    <script>
+        const PROJECT_ID = '850610a8-d033-4fc9-a3e5-f2511f7ee7bb';
+        const PUBLISHABLE_KEY = 'pck_rz58p82a8cd930c2q491km3v4nrh2vzntxw8f736cry8g';
+
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+
+        async function verifyProject() {
+            log('🔍 Verificando configuração do projeto...', 'info');
+            
+            // Testar acesso básico à API
+            const urls = [
+                'https://api.stack-auth.com',
+                'https://api.stack-auth.com/api',
+                'https://api.stack-auth.com/api/v1',
+                `https://api.stack-auth.com/api/v1/projects/${PROJECT_ID}`,
+            ];
+
+            for (const url of urls) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'x-stack-publishable-client-key': PUBLISHABLE_KEY,
+                            'x-stack-project-id': PROJECT_ID
+                        }
+                    });
+                    
+                    log(`📡 ${url}: ${response.status} ${response.statusText}`, 
+                        response.status < 400 ? 'check' : 'error');
+                    
+                    if (response.status !== 404) {
+                        const text = await response.text();
+                        log(`📋 Resposta: <pre>${text}</pre>`, 'info');
+                    }
+                } catch (error) {
+                    log(`❌ Erro ao acessar ${url}: ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+
+        async function testBasicConnectivity() {
+            log('🌐 Testando conectividade básica...', 'info');
+            
+            try {
+                // Teste simples de conectividade
+                const response = await fetch('https://api.stack-auth.com', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                log(`✅ Stack Auth API acessível: ${response.status}`, 'check');
+                
+                // Agora testar com headers de autenticação
+                const authResponse = await fetch('https://api.stack-auth.com/api/v1', {
+                    method: 'GET',
+                    headers: {
+                        'x-stack-publishable-client-key': PUBLISHABLE_KEY,
+                        'x-stack-project-id': PROJECT_ID
+                    }
+                });
+                
+                log(`🔐 Com autenticação: ${authResponse.status}`, 
+                    authResponse.status < 400 ? 'check' : 'error');
+                    
+            } catch (error) {
+                log(`❌ Problema de conectividade: ${error.message}`, 'error');
+            }
+        }
+
+        async function findWorkingEndpoint() {
+            log('🎯 Procurando endpoint funcional para registro...', 'info');
+            
+            const baseUrls = [
+                'https://api.stack-auth.com/api/v1',
+                `https://api.stack-auth.com/api/v1/projects/${PROJECT_ID}`,
+                'https://api.stack-auth.com/v1',
+                'https://auth.stack-auth.com/api/v1'
+            ];
+            
+            const endpoints = [
+                '/auth/signup',
+                '/auth/register', 
+                '/users',
+                '/signup',
+                '/register'
+            ];
+            
+            const testUser = {
+                email: `test${Date.now()}@convflow.com`,
+                password: 'Test123456!',
+                display_name: 'Test User'
+            };
+            
+            for (const baseUrl of baseUrls) {
+                for (const endpoint of endpoints) {
+                    const fullUrl = baseUrl + endpoint;
+                    
+                    try {
+                        log(`🧪 Testando: ${fullUrl}`, 'info');
+                        
+                        const response = await fetch(fullUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'x-stack-publishable-client-key': PUBLISHABLE_KEY,
+                                'x-stack-project-id': PROJECT_ID
+                            },
+                            body: JSON.stringify(testUser)
+                        });
+                        
+                        const text = await response.text();
+                        
+                        if (response.ok) {
+                            log(`🎉 SUCESSO! Endpoint funcional: ${fullUrl}`, 'check');
+                            log(`📋 Resposta: <pre>${text}</pre>`, 'check');
+                            return fullUrl;
+                        } else if (response.status !== 404) {
+                            log(`⚠️ ${fullUrl}: ${response.status} - ${text}`, 'error');
+                        } else {
+                            log(`❌ ${fullUrl}: 404 (não existe)`, 'error');
+                        }
+                    } catch (error) {
+                        log(`❌ Erro em ${fullUrl}: ${error.message}`, 'error');
+                    }
+                    
+                    await new Promise(resolve => setTimeout(resolve, 400));
+                }
+            }
+            
+            log('❌ Nenhum endpoint funcional encontrado', 'error');
+            log('💡 Sugestão: Verificar se o projeto Stack Auth está configurado corretamente no dashboard', 'info');
+        }
+
+        log('🚀 Stack Auth Project Verification carregado', 'check');
+    </script>
+</body>
+</html>

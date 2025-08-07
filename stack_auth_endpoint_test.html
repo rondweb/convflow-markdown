@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stack Auth Endpoint Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 250px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        #results { margin-top: 20px; max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Stack Auth Endpoint Discovery</h1>
+    
+    <div class="section warning">
+        <h3>⚠️ Problema Atual:</h3>
+        <p><strong>Erro 404:</strong> <code>/auth/register</code> não existe no Stack Auth</p>
+        <p><strong>URL Testada:</strong> <code>https://api.stack-auth.com/api/v1/projects/850610a8-d033-4fc9-a3e5-f2511f7ee7bb/auth/register</code></p>
+    </div>
+
+    <div class="section info">
+        <h3>🔧 Configurações:</h3>
+        <p><strong>Project ID:</strong> <span id="projectId">850610a8-d033-4fc9-a3e5-f2511f7ee7bb</span></p>
+        <p><strong>Publishable Key:</strong> <span id="pubKey">pck_rz58p82a8cd930c2q491km3v4nrh2vzntxw8f736cry8g</span></p>
+        <p><strong>Base URL:</strong> <span id="baseUrl">https://api.stack-auth.com/api/v1/projects/850610a8-d033-4fc9-a3e5-f2511f7ee7bb</span></p>
+    </div>
+
+    <div class="section">
+        <h3>🧪 Teste de Endpoints</h3>
+        <button onclick="testEndpoint('/users', 'GET')">GET /users</button>
+        <button onclick="testEndpoint('/users', 'POST')">POST /users (Registro)</button>
+        <button onclick="testEndpoint('/auth/signin', 'POST')">POST /auth/signin</button>
+        <button onclick="testEndpoint('/auth/me', 'GET')">GET /auth/me</button>
+        <button onclick="testEndpoint('/auth/signout', 'POST')">POST /auth/signout</button>
+        <br><br>
+        <button onclick="testEndpoint('/', 'GET')">GET / (Root)</button>
+        <button onclick="testEndpoint('/health', 'GET')">GET /health</button>
+        <button onclick="testEndpoint('/api', 'GET')">GET /api</button>
+    </div>
+
+    <div class="section">
+        <h3>📝 Teste de Registro Real</h3>
+        <input type="email" id="testEmail" placeholder="Email" value="test@convflow.com">
+        <input type="password" id="testPassword" placeholder="Senha" value="Test123456!">
+        <input type="text" id="testName" placeholder="Nome" value="Test User">
+        <br>
+        <button onclick="testUserRegistration()">🚀 Testar Registro de Usuário</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const PROJECT_ID = '850610a8-d033-4fc9-a3e5-f2511f7ee7bb';
+        const PUBLISHABLE_KEY = 'pck_rz58p82a8cd930c2q491km3v4nrh2vzntxw8f736cry8g';
+        const BASE_URL = `https://api.stack-auth.com/api/v1/projects/${PROJECT_ID}`;
+
+        function logResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `section ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.insertBefore(div, results.firstChild);
+            console.log(message);
+        }
+
+        async function testEndpoint(endpoint, method = 'GET', body = null) {
+            try {
+                logResult(`🔍 Testando ${method} ${endpoint}...`, 'info');
+                
+                const config = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-stack-publishable-client-key': PUBLISHABLE_KEY,
+                        'x-stack-project-id': PROJECT_ID
+                    }
+                };
+
+                if (body) {
+                    config.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(`${BASE_URL}${endpoint}`, config);
+                
+                let responseText = '';
+                try {
+                    responseText = await response.text();
+                } catch (e) {
+                    responseText = 'Erro ao ler resposta';
+                }
+
+                let responseData = {};
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    responseData = { raw: responseText };
+                }
+
+                const statusClass = response.ok ? 'success' : (response.status === 404 ? 'warning' : 'error');
+                
+                logResult(
+                    `📊 ${method} ${endpoint}: <strong>${response.status} ${response.statusText}</strong><br>` +
+                    `<pre>${JSON.stringify(responseData, null, 2)}</pre>`,
+                    statusClass
+                );
+
+                return { status: response.status, data: responseData, ok: response.ok };
+            } catch (error) {
+                logResult(`❌ Erro na requisição ${method} ${endpoint}: ${error.message}`, 'error');
+                return { error: error.message };
+            }
+        }
+
+        async function testUserRegistration() {
+            const email = document.getElementById('testEmail').value;
+            const password = document.getElementById('testPassword').value;
+            const name = document.getElementById('testName').value;
+
+            logResult(`🚀 Testando registro com dados reais...`, 'info');
+
+            // Tentar diferentes formatos de dados
+            const formats = [
+                {
+                    name: 'Formato 1: email, password, display_name',
+                    data: { email, password, display_name: name }
+                },
+                {
+                    name: 'Formato 2: email, password, name',
+                    data: { email, password, name }
+                },
+                {
+                    name: 'Formato 3: email, password, firstName, lastName',
+                    data: { 
+                        email, 
+                        password, 
+                        firstName: name.split(' ')[0] || name,
+                        lastName: name.split(' ').slice(1).join(' ') || ''
+                    }
+                }
+            ];
+
+            for (const format of formats) {
+                logResult(`📋 ${format.name}`, 'info');
+                await testEndpoint('/users', 'POST', format.data);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Pausa de 1 segundo
+            }
+        }
+
+        // Teste inicial
+        logResult(`🎯 Página carregada. Pronto para descobrir os endpoints corretos!`, 'success');
+        
+        // Teste automático dos endpoints básicos
+        setTimeout(async () => {
+            logResult(`🔄 Iniciando teste automático de endpoints...`, 'info');
+            await testEndpoint('/', 'GET');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testEndpoint('/users', 'GET');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testEndpoint('/auth/me', 'GET');
+        }, 1000);
+    </script>
+</body>
+</html>

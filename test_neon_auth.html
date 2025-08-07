@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Neon Auth Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Teste de Integração Neon Auth</h1>
+    
+    <div class="section info">
+        <h3>Configurações Atuais:</h3>
+        <p><strong>Stack Project ID:</strong> 850610a8-d033-4fc9-a3e5-f2511f7ee7bb</p>
+        <p><strong>Stack Publishable Key:</strong> pck_rz58p82a8cd930c2q491km3v4nrh2vzntxw8f736cry8g</p>
+        <p><strong>Auth Base URL:</strong> https://api.stack-auth.com/api/v1/projects/850610a8-d033-4fc9-a3e5-f2511f7ee7bb</p>
+    </div>
+
+    <div class="section">
+        <h3>📝 Teste de Registro</h3>
+        <input type="email" id="registerEmail" placeholder="Email" value="teste@convflow.com">
+        <input type="password" id="registerPassword" placeholder="Senha" value="teste123456">
+        <input type="text" id="registerName" placeholder="Nome" value="Usuário Teste">
+        <button onclick="testRegister()">Registrar</button>
+    </div>
+
+    <div class="section">
+        <h3>🔑 Teste de Login</h3>
+        <input type="email" id="loginEmail" placeholder="Email" value="teste@convflow.com">
+        <input type="password" id="loginPassword" placeholder="Senha" value="teste123456">
+        <button onclick="testLogin()">Login</button>
+    </div>
+
+    <div class="section">
+        <h3>👤 Teste de Usuário Atual</h3>
+        <button onclick="testCurrentUser()">Verificar Usuário Logado</button>
+        <button onclick="testLogout()">Logout</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const STACK_PROJECT_ID = '850610a8-d033-4fc9-a3e5-f2511f7ee7bb';
+        const STACK_PUBLISHABLE_KEY = 'pck_rz58p82a8cd930c2q491km3v4nrh2vzntxw8f736cry8g';
+        const AUTH_BASE_URL = `https://api.stack-auth.com/api/v1/projects/${STACK_PROJECT_ID}`;
+
+        function logResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `section ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+
+        async function makeStackAuthRequest(endpoint, method = 'GET', data = null) {
+            try {
+                const config = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-stack-publishable-client-key': STACK_PUBLISHABLE_KEY,
+                        'x-stack-project-id': STACK_PROJECT_ID
+                    }
+                };
+
+                if (data) {
+                    config.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(`${AUTH_BASE_URL}${endpoint}`, config);
+                const responseData = await response.json();
+
+                logResult(`📡 ${method} ${endpoint}: ${response.status}`, response.ok ? 'success' : 'error');
+                logResult(`📋 Response: ${JSON.stringify(responseData, null, 2)}`, 'info');
+
+                return { success: response.ok, data: responseData, status: response.status };
+            } catch (error) {
+                logResult(`❌ Erro na requisição: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function testRegister() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const name = document.getElementById('registerName').value;
+
+            logResult(`🚀 Testando registro para: ${email}`, 'info');
+
+            const result = await makeStackAuthRequest('/users', 'POST', {
+                email,
+                password,
+                display_name: name
+            });
+
+            if (result.success) {
+                logResult(`✅ Usuário registrado com sucesso!`, 'success');
+            } else {
+                logResult(`❌ Falha no registro: ${JSON.stringify(result.data)}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            logResult(`🚀 Testando login para: ${email}`, 'info');
+
+            const result = await makeStackAuthRequest('/auth/signin', 'POST', {
+                email,
+                password
+            });
+
+            if (result.success) {
+                logResult(`✅ Login realizado com sucesso!`, 'success');
+                // Salvar token se retornado
+                if (result.data.access_token) {
+                    localStorage.setItem('stack_auth_token', result.data.access_token);
+                    logResult(`🔑 Token salvo no localStorage`, 'success');
+                }
+            } else {
+                logResult(`❌ Falha no login: ${JSON.stringify(result.data)}`, 'error');
+            }
+        }
+
+        async function testCurrentUser() {
+            logResult(`🚀 Verificando usuário atual...`, 'info');
+
+            const token = localStorage.getItem('stack_auth_token');
+            if (!token) {
+                logResult(`❌ Nenhum token encontrado. Faça login primeiro.`, 'error');
+                return;
+            }
+
+            const result = await makeStackAuthRequest('/auth/me', 'GET');
+
+            if (result.success) {
+                logResult(`✅ Usuário atual obtido com sucesso!`, 'success');
+            } else {
+                logResult(`❌ Falha ao obter usuário: ${JSON.stringify(result.data)}`, 'error');
+            }
+        }
+
+        async function testLogout() {
+            logResult(`🚀 Fazendo logout...`, 'info');
+            
+            localStorage.removeItem('stack_auth_token');
+            logResult(`✅ Token removido do localStorage`, 'success');
+
+            const result = await makeStackAuthRequest('/auth/signout', 'POST');
+
+            if (result.success) {
+                logResult(`✅ Logout realizado com sucesso!`, 'success');
+            } else {
+                logResult(`❌ Falha no logout: ${JSON.stringify(result.data)}`, 'error');
+            }
+        }
+
+        // Inicialização
+        logResult(`🎯 Página de teste carregada. Pronto para testar a integração Neon Auth!`, 'success');
+    </script>
+</body>
+</html>
