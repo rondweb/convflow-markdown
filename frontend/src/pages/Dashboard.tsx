@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useKeycloakAuth } from '../contexts/KeycloakAuthContext';
 import { Upload, FileText, Clock, CheckCircle, AlertCircle, Download } from 'lucide-react';
 import FileUpload from '../components/dashboard/FileUpload';
 import PlanUsage from '../components/dashboard/PlanUsage';
 import RecentConversions from '../components/dashboard/RecentConversions';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user } = useKeycloakAuth();
   const [activeTab, setActiveTab] = useState('upload');
 
   const tabs = [
@@ -21,7 +21,7 @@ const Dashboard: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.firstName}!
+            Welcome back, {user?.firstName || user?.name || 'User'}!
           </h1>
           <p className="text-gray-600 mt-2">
             Transform your files into beautiful Markdown with just a few clicks.

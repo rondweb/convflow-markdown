@@ -1,13 +1,14 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useKeycloakAuth } from '../../contexts/KeycloakAuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  roles?: string[]; // Roles opcionais para autorização
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles }) => {
+  const { user, isLoading, isAuthenticated, hasAnyRole } = useKeycloakAuth();
 
   if (isLoading) {
     return (
@@ -17,8 +18,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Verificar roles se especificadas
+  if (roles && roles.length > 0 && !hasAnyRole(roles)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900">Access Denied</h1>
+          <p className="text-gray-600 mt-2">You don't have permission to access this page.</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useKeycloakAuth } from '../contexts/KeycloakAuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { User, Mail, Lock, CreditCard, Bell, Shield, Save } from 'lucide-react';
 
 const Settings: React.FC = () => {
-  const { user } = useAuth();
+  const { user } = useKeycloakAuth();
   const { addToast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);

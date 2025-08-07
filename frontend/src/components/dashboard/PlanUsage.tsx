@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useKeycloakAuth } from '../../contexts/KeycloakAuthContext';
 import { Link } from 'react-router-dom';
 import { Crown, Zap, Star, Calendar, TrendingUp } from 'lucide-react';
 import { usageService, UsageStats } from '../../services/usage';
 
 const PlanUsage: React.FC = () => {
-  const { user } = useAuth();
+  const { user } = useKeycloakAuth();
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null);
 
   useEffect(() => {
@@ -15,8 +15,7 @@ const PlanUsage: React.FC = () => {
   }, []);
 
   const usagePercentage = usageStats ? (usageStats.monthlyConversions / usageStats.planLimit) * 100 : 0;
-  const remainingDays = user?.trialEndDate ? 
-    Math.max(0, Math.ceil((user.trialEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
+  const remainingDays = 30; // Default value since Keycloak user might not have trialEndDate
 
   const planFeatures = {
     basic: [

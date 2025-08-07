@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { Menu, X, FileText, User, LogOut, Settings, History } from 'lucide-react';
+import { useKeycloakAuth } from '../../contexts/KeycloakAuthContext';
+import { Menu, X, FileText, User, LogOut, Settings, History, Shield } from 'lucide-react';
 
 const Header: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, login, isAuthenticated } = useKeycloakAuth();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -87,6 +87,14 @@ const Header: React.FC = () => {
                       <Settings className="w-4 h-4" />
                       <span>Settings</span>
                     </Link>
+                    <Link
+                      to="/admin"
+                      className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      <Shield className="w-4 h-4" />
+                      <span>Admin</span>
+                    </Link>
                     <hr className="my-1" />
                     <button
                       onClick={() => {
@@ -109,12 +117,12 @@ const Header: React.FC = () => {
                 >
                   Login
                 </Link>
-                <Link
-                  to="/handler/sign-in"
+                <button
+                  onClick={() => login()}
                   className="text-green-600 hover:text-green-700 transition-colors font-medium"
                 >
-                  Neon Auth
-                </Link>
+                  Keycloak Login
+                </button>
                 <Link
                   to="/register"
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300"

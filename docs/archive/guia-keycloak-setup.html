@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConvFlow - Configuração Keycloak</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #667eea;
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .status {
+            background: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .status.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .status.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        .steps {
+            margin: 30px 0;
+        }
+        .step {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .step-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .step-content {
+            padding: 20px;
+            display: none;
+        }
+        .step.active .step-content {
+            display: block;
+        }
+        .step.active .step-header {
+            background: #28a745;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: #333;
+            font-weight: bold;
+        }
+        .action-button {
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .action-button:hover {
+            background: #5a6fd8;
+        }
+        .action-button.secondary {
+            background: #6c757d;
+        }
+        .action-button.secondary:hover {
+            background: #5a6268;
+        }
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .config-table th,
+        .config-table td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        .config-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .progress {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 20px;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            background: #28a745;
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .checkbox {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .checkbox input {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .info-box h4 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 ConvFlow - Configuração Keycloak</h1>
+            <p>Guia completo para configurar autenticação</p>
+        </div>
+
+        <div class="status">
+            <h3>📊 Status Atual</h3>
+            <p><strong>❌ Realm 'convflow' não encontrado</strong></p>
+            <p>O servidor Keycloak está funcionando, mas o realm precisa ser criado.</p>
+        </div>
+
+        <div class="info-box">
+            <h4>🔧 Informações de Configuração</h4>
+            <table class="config-table">
+                <tr>
+                    <th>Parâmetro</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td>Keycloak URL</td>
+                    <td>https://keycloak-leaftix-g4gufcg6acgnbbar.eastus2-01.azurewebsites.net</td>
+                </tr>
+                <tr>
+                    <td>Realm</td>
+                    <td>convflow</td>
+                </tr>
+                <tr>
+                    <td>Client ID</td>
+                    <td>qRyNYFeCBNxkW7BVTx3RMnC1cKMWH2G8</td>
+                </tr>
+                <tr>
+                    <td>Client Secret</td>
+                    <td>vBzQUPG9KjHpaFEgHK4UiBq66eB1qUhR</td>
+                </tr>
+                <tr>
+                    <td>Test User</td>
+                    <td>test@convflow.com / 123456</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p id="progressText">Progresso: 0/6 etapas concluídas</p>
+
+        <div class="steps">
+            <div class="step" id="step1">
+                <div class="step-header" onclick="toggleStep(1)">
+                    <span>1️⃣ Acessar Admin Console</span>
+                    <span>▼</span>
+                </div>
+                <div class="step-content">
+                    <p>Primeiro, acesse o console administrativo do Keycloak:</p>
+                    <a href="https://keycloak-leaftix-g4gufcg6acgnbbar.eastus2-01.azurewebsites.net/admin" 
+                       target="_blank" class="action-button">
+                        🚀 Abrir Admin Console
+                    </a>
+                    
+                    <div class="info-box">
+                        <h4>⚠️ Importante</h4>
+                        <p>Você precisará das credenciais de administrador do Keycloak. Se não tiver, entre em contato com quem configurou o servidor.</p>
+                    </div>
+
+                    <div class="checkbox">
+                        <input type="checkbox" id="check1" onchange="updateProgress()">
+                        <label for="check1">✅ Consegui acessar o Admin Console</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step2">
+                <div class="step-header" onclick="toggleStep(2)">
+                    <span>2️⃣ Criar Realm 'convflow'</span>
+                    <span>▼</span>
+                </div>
+                <div class="step-content">
+                    <p>No Admin Console, crie um novo realm:</p>
+                    <ol>
+                        <li>No menu superior esquerdo, clique em "Master" ou no nome do realm atual</li>
+                        <li>Clique em <strong>"Add realm"</strong> ou <strong>"Create Realm"</strong></li>
+                        <li>Preencha os dados:</li>
+                    </ol>
+
+                    <table class="config-table">
+                        <tr>
+                            <th>Campo</th>
+                            <th>Valor</th>
+                        </tr>
+                        <tr>
+                            <td>Name</td>
+                            <td><span class="highlight">convflow</span></td>
+                        </tr>
+                        <tr>
+                            <td>Display Name</td>
+                            <td>ConvFlow</td>
+                        </tr>
+                        <tr>
+                            <td>Enabled</td>
+                            <td>✅ ON</td>
+                        </tr>
+                    </ol>
+
+                    <div class="checkbox">
+                        <input type="checkbox" id="check2" onchange="updateProgress()">
+                        <label for="check2">✅ Realm 'convflow' criado com sucesso</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step3">
+                <div class="step-header" onclick="toggleStep(3)">
+                    <span>3️⃣ Configurar Client</span>
+                    <span>▼</span>
+                </div>
+                <div class="step-content">
+                    <p>Agora configure o cliente para o frontend:</p>
+                    <ol>
+                        <li>No realm 'convflow', vá para <strong>Clients</strong></li>
+                        <li>Clique em <strong>"Create"</strong></li>
+                        <li>Configure os dados:</li>
+                    </ol>
+
+                    <table class="config-table">
+                        <tr>
+                            <th>Campo</th>
+                            <th>Valor</th>
+                        </tr>
+                        <tr>
+                            <td>Client ID</td>
+                            <td><span class="highlight">qRyNYFeCBNxkW7BVTx3RMnC1cKMWH2G8</span></td>
+                        </tr>
+                        <tr>
+                            <td>Client Protocol</td>
+                            <td>openid-connect</td>
+                        </tr>
+                        <tr>
+                            <td>Access Type</td>
+                            <td>confidential</td>
+                        </tr>
+                        <tr>
+                            <td>Valid Redirect URIs</td>
+                            <td>http://localhost:5173/*</td>
+                        </tr>
+                        <tr>
+                            <td>Web Origins</td>
+                            <td>http://localhost:5173</td>
+                        </tr>
+                        <tr>
+                            <td>Direct Access Grants</td>
+                            <td>✅ Enabled</td>
+                        </tr>
+                    </table>
+
+                    <div class="info-box">
+                        <h4>🔑 Client Secret</h4>
+                        <p>Após criar o cliente, vá para a aba <strong>"Credentials"</strong> e configure:</p>
+                        <div class="code-block">Client Secret: vBzQUPG9KjHpaFEgHK4UiBq66eB1qUhR</div>
+                    </div>
+
+                    <div class="checkbox">
+                        <input type="checkbox" id="check3" onchange="updateProgress()">
+                        <label for="check3">✅ Cliente configurado com Client Secret</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step4">
+                <div class="step-header" onclick="toggleStep(4)">
+                    <span>4️⃣ Criar Usuário de Teste</span>
+                    <span>▼</span>
+                </div>
+                <div class="step-content">
+                    <p>Crie o usuário de teste:</p>
+                    <ol>
+                        <li>Vá para <strong>Users</strong></li>
+                        <li>Clique em <strong>"Add user"</strong></li>
+                        <li>Preencha os dados:</li>
+                    </ol>
+
+                    <table class="config-table">
+                        <tr>
+                            <th>Campo</th>
+                            <th>Valor</th>
+                        </tr>
+                        <tr>
+                            <td>Username</td>
+                            <td><span class="highlight">test</span></td>
+                        </tr>
+                        <tr>
+                            <td>Email</td>
+                            <td><span class="highlight">test@convflow.com</span></td>
+                        </tr>
+                        <tr>
+                            <td>First Name</td>
+                            <td>Test</td>
+                        </tr>
+                        <tr>
+                            <td>Last Name</td>
+                            <td>User</td>
+                        </tr>
+                        <tr>
+                            <td>Email Verified</td>
+                            <td>✅ ON</td>
+                        </tr>
+                        <tr>
+                            <td>Enabled</td>
+                            <td>✅ ON</td>
+                        </tr>
+                    </table>
+
+                    <p><strong>Definir senha:</strong></p>
+                    <ol>
+                        <li>Após criar o usuário, vá para a aba <strong>"Credentials"</strong></li>
+                        <li>Defina a senha:</li>
+                    </ol>
+
+                    <table class="config-table">
+                        <tr>
+                            <th>Campo</th>
+                            <th>Valor</th>
+                        </tr>
+                        <tr>
+                            <td>Password</td>
+                            <td><span class="highlight">123456</span></td>
+                        </tr>
+                        <tr>
+                            <td>Temporary</td>
+                            <td>❌ OFF (para não forçar mudança)</td>
+                        </tr>
+                    </table>
+
+                    <div class="checkbox">
+                        <input type="checkbox" id="check4" onchange="updateProgress()">
+                        <label for="check4">✅ Usuário 'test' criado com senha definida</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step5">
+                <div class="step-header" onclick="toggleStep(5)">
+                    <span>5️⃣ Configurar Roles de Admin</span>
+                    <span>▼</span>
+                </div>
+                <div class="step-content">
+                    <p>Atribuir role de administrador ao usuário:</p>
+                    <ol>
+                        <li>No usuário 'test', vá para a aba <strong>"Role Mappings"</strong></li>
+                        <li>Na seção <strong>"Realm Roles"</strong>, adicione:</li>
+                        <ul>
+                            <li>admin</li>
+                            <li>realm-admin (se existir)</li>
+                        </ul>
+                        <li>Se não existir role 'admin', crie em <strong>Roles > Add Role</strong></li>
+                    </ol>
+
+                    <div class="checkbox">
+                        <input type="checkbox" id="check5" onchange="updateProgress()">
+                        <label for="check5">✅ Roles de admin atribuídas ao usuário</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step" id="step6">
+                <div class="step-header" onclick="toggleStep(6)">
+                    <span>6️⃣ Testar Configuração</span>
+                    <span>▼</span>
+                </div>
+                <div class="step-content">
+                    <p>Teste a configuração:</p>
+                    
+                    <button class="action-button" onclick="testKeycloak()">
+                        🧪 Testar Configuração
+                    </button>
+                    
+                    <div id="testResults" style="margin-top: 20px;"></div>
+
+                    <div class="info-box">
+                        <h4>🚀 Próximos Passos</h4>
+                        <p>Após confirmar que tudo está funcionando:</p>
+                        <ol>
+                            <li>Execute o script PowerShell novamente para validar</li>
+                            <li>Inicie o frontend: <code>cd frontend && npm run dev</code></li>
+                            <li>Teste o login na aplicação</li>
+                        </ol>
+                    </div>
+
+                    <div class="checkbox">
+                        <input type="checkbox" id="check6" onchange="updateProgress()">
+                        <label for="check6">✅ Configuração testada e funcionando</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status success" id="successMessage" style="display: none;">
+            <h3>🎉 Configuração Completa!</h3>
+            <p>O Keycloak está configurado e pronto para uso.</p>
+            <button class="action-button" onclick="openApp()">
+                🌐 Abrir Aplicação
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let completedSteps = 0;
+
+        function toggleStep(stepNumber) {
+            const step = document.getElementById(`step${stepNumber}`);
+            step.classList.toggle('active');
+        }
+
+        function updateProgress() {
+            completedSteps = 0;
+            for (let i = 1; i <= 6; i++) {
+                if (document.getElementById(`check${i}`).checked) {
+                    completedSteps++;
+                    document.getElementById(`step${i}`).classList.add('active');
+                }
+            }
+            
+            const percentage = (completedSteps / 6) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `Progresso: ${completedSteps}/6 etapas concluídas`;
+            
+            if (completedSteps === 6) {
+                document.getElementById('successMessage').style.display = 'block';
+            }
+        }
+
+        async function testKeycloak() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<p>🔄 Testando configuração...</p>';
+            
+            try {
+                // Teste básico de conectividade
+                const testUrl = 'https://keycloak-leaftix-g4gufcg6acgnbbar.eastus2-01.azurewebsites.net/realms/convflow/.well-known/openid_configuration';
+                const response = await fetch(testUrl);
+                
+                if (response.ok) {
+                    const config = await response.json();
+                    resultsDiv.innerHTML = `
+                        <div class="status success">
+                            <h4>✅ Teste bem-sucedido!</h4>
+                            <p><strong>Realm encontrado:</strong> ${config.issuer}</p>
+                            <p><strong>Endpoints disponíveis:</strong> ✅</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error('Realm não encontrado');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="status">
+                        <h4>❌ Teste falhou</h4>
+                        <p>O realm 'convflow' ainda não foi criado ou não está acessível.</p>
+                        <p>Verifique se todas as etapas anteriores foram concluídas.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function openApp() {
+            window.open('http://localhost:5173', '_blank');
+        }
+
+        // Abrir primeira etapa por padrão
+        document.getElementById('step1').classList.add('active');
+    </script>
+</body>
+</html>

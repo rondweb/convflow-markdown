@@ -19,6 +19,7 @@ from src.services.database import db_service
 from src.services.auth_service import auth_service
 from src.routes.auth import router as auth_router, get_current_user
 from src.routes.user import router as user_router
+from src.routes.keycloak_users import router as keycloak_users_router
 from src.models.auth import User
 
 # Load environment variables
@@ -75,6 +76,7 @@ app.add_middleware(
 # Include authentication and user routes
 app.include_router(auth_router)
 app.include_router(user_router)
+app.include_router(keycloak_users_router)
 
 # Initialize MarkItDown converter
 md_converter = MarkItDown()
