@@ -11,8 +11,15 @@ const Login: React.FC = () => {
 
   // Redirecionar se já estiver logado
   React.useEffect(() => {
+    console.log('Login page: checking authentication status');
+    console.log('isAuthenticated:', isAuthenticated);
+    console.log('user:', user);
+    
     if (isAuthenticated && user) {
-      navigate('/dashboard');
+      console.log('Login page: User is already authenticated, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
+    } else {
+      console.log('Login page: User is not authenticated');
     }
   }, [isAuthenticated, user, navigate]);
 

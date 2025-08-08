@@ -11,7 +11,7 @@ console.log('Keycloak Config:', keycloakConfig);
 
 // Configurações de inicialização
 const initOptions = {
-  onLoad: 'login-required' as const, // Forçar login se não estiver autenticado
+  onLoad: 'check-sso' as const, // Alterado para verificar SSO sem forçar login
   silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
   pkceMethod: 'S256' as const, // Usar PKCE para segurança adicional
   checkLoginIframe: false, // Desabilitar iframe check para evitar problemas de CORS
@@ -50,21 +50,54 @@ class KeycloakService {
       console.log('Initializing Keycloak with config:', keycloakConfig);
       console.log('Init options:', initOptions);
       
+      // Verificar se há token salvo em localStorage para persistência entre sessões
+      const savedToken = localStorage.getItem('keycloak-token');
+      if (savedToken) {
+        console.log('Found saved token, setting token before init');
+        try {
+          // Tenta usar o token salvo se estiver disponível
+          keycloak.token = savedToken;
+        } catch (e) {
+          console.error('Error setting saved token:', e);
+          localStorage.removeItem('keycloak-token');
+        }
+      }
+      
       // Adicionar evento de log para depurar fluxo de autenticação
       window.addEventListener('keycloak-callback', () => {
         console.log('Keycloak callback event received');
-        // Forçar redirecionamento para dashboard se autenticado
-        if (keycloak.authenticated) {
-          console.log('Authenticated in callback, redirecting to dashboard');
-          window.location.href = '/dashboard';
-        }
+        // Forçar verificação do token
+        this.refreshToken().then(refreshed => {
+          if (keycloak.authenticated) {
+            console.log('Authentication confirmed in callback, saving token');
+            localStorage.setItem('keycloak-token', keycloak.token || '');
+            
+            // Redirecionar se não estivermos no dashboard
+            if (window.location.pathname !== '/dashboard') {
+              console.log('Redirecting to dashboard from callback handler');
+              window.location.replace('/dashboard');
+            }
+          }
+        });
       });
       
       // Verificar se estamos retornando de um login
       const params = new URLSearchParams(window.location.search);
       const hash = new URLSearchParams(window.location.hash.replace('#', ''));
-      if (params.get('code') || hash.get('code')) {
-        console.log('Authorization code detected, processing callback');
+      const hasCode = params.get('code') || hash.get('code');
+      
+      if (hasCode) {
+        console.log('Authorization code detected, expecting callback processing');
+        
+        // Configurar uma resposta de fallback se o processamento do Keycloak falhar
+        setTimeout(() => {
+          if (!keycloak.authenticated) {
+            console.log('Keycloak authentication timed out, trying manual redirect');
+            if (window.location.pathname !== '/dashboard') {
+              window.location.replace('/dashboard');
+            }
+          }
+        }, 5000);
       }
       
       const authenticated = await keycloak.init(initOptions);
@@ -72,7 +105,12 @@ class KeycloakService {
 
       console.log('Keycloak initialized. Authenticated:', authenticated);
       console.log('Token:', keycloak.token ? 'Present' : 'Missing');
-      console.log('User info:', keycloak.tokenParsed);
+      console.log('Token Parsed:', keycloak.tokenParsed);
+
+      // Salvar token se autenticado
+      if (authenticated && keycloak.token) {
+        localStorage.setItem('keycloak-token', keycloak.token);
+      }
 
       // Configurar eventos
       keycloak.onTokenExpired = () => {
@@ -82,31 +120,58 @@ class KeycloakService {
 
       keycloak.onAuthSuccess = () => {
         console.log('Authentication successful');
+        if (keycloak.token) {
+          localStorage.setItem('keycloak-token', keycloak.token);
+        }
         this.notifyLoginCallbacks();
+        
+        // Redirecionar para dashboard se estiver na página de login
+        if (window.location.pathname === '/login' || window.location.pathname === '/') {
+          console.log('Auth success while on login page, redirecting to dashboard');
+          window.location.replace('/dashboard');
+        }
       };
 
       keycloak.onAuthLogout = () => {
         console.log('User logged out');
+        localStorage.removeItem('keycloak-token');
+        sessionStorage.removeItem('keycloak-authenticated');
         this.notifyLogoutCallbacks();
       };
 
       keycloak.onAuthError = (error) => {
         console.error('Authentication error:', error);
+        localStorage.removeItem('keycloak-token');
+        sessionStorage.removeItem('keycloak-authenticated');
       };
 
       keycloak.onAuthRefreshSuccess = () => {
         console.log('Token refresh successful');
+        if (keycloak.token) {
+          localStorage.setItem('keycloak-token', keycloak.token);
+        }
       };
 
       keycloak.onAuthRefreshError = () => {
         console.error('Token refresh failed');
+        localStorage.removeItem('keycloak-token');
+        sessionStorage.removeItem('keycloak-authenticated');
         this.logout();
       };
+
+      // Atualizar sessionStorage para refletir estado atual
+      if (authenticated) {
+        sessionStorage.setItem('keycloak-authenticated', 'true');
+      } else {
+        sessionStorage.removeItem('keycloak-authenticated');
+      }
 
       return authenticated;
     } catch (error) {
       console.error('Failed to initialize Keycloak:', error);
       this.initialized = true; // Marcar como inicializado mesmo com erro para evitar loops
+      localStorage.removeItem('keycloak-token');
+      sessionStorage.removeItem('keycloak-authenticated');
       return false;
     }
   }
@@ -114,17 +179,15 @@ class KeycloakService {
   // Login do usuário
   async login(): Promise<void> {
     if (!this.initialized) {
-      throw new Error('Keycloak not initialized');
+      await this.init();
     }
     console.log('Attempting to login...');
     
-    // Usar redirecionamento em vez de popup para melhor compatibilidade
-    console.log('Current location.origin:', window.location.origin);
-
     // Salvar a URL de origem para redirecionamento
     sessionStorage.setItem('keycloak-login-initiated', 'true');
+    sessionStorage.setItem('keycloak-login-time', new Date().toISOString());
     
-    // Ajustado para usar location.origin corretamente e forçar o tipo de redirecionamento
+    // Usar login com parâmetros específicos
     return keycloak.login({
       redirectUri: `${window.location.origin}/dashboard`,
       prompt: 'login'
@@ -134,14 +197,15 @@ class KeycloakService {
   // Registro do usuário (redireciona para página de registro do Keycloak)
   async register(): Promise<void> {
     if (!this.initialized) {
-      throw new Error('Keycloak not initialized');
+      await this.init();
     }
     console.log('Attempting to register...');
     
-    // Redirecionar para página de registro do Keycloak
-    console.log('Current location.origin:', window.location.origin);
+    // Salvar a URL de origem para redirecionamento
+    sessionStorage.setItem('keycloak-register-initiated', 'true');
+    sessionStorage.setItem('keycloak-register-time', new Date().toISOString());
     
-    // Ajustado para usar location.origin corretamente
+    // Redirecionar para página de registro do Keycloak
     return keycloak.login({
       action: 'register',
       redirectUri: `${window.location.origin}/dashboard`
@@ -153,9 +217,15 @@ class KeycloakService {
     if (!this.initialized) {
       throw new Error('Keycloak not initialized');
     }
+    
+    // Limpar armazenamento local
+    localStorage.removeItem('keycloak-token');
+    sessionStorage.removeItem('keycloak-authenticated');
+    sessionStorage.removeItem('keycloak-login-initiated');
+    
     // Adicionar URL de redirecionamento para logout
     return keycloak.logout({
-      redirectUri: window.location.origin
+      redirectUri: `${window.location.origin}/login`
     });
   }
 
@@ -166,15 +236,36 @@ class KeycloakService {
     console.log('Checking authentication status:', authenticated);
     console.log('Current token:', keycloak.token ? 'Present' : 'Missing');
     
+    // Verificar token salvo se não estiver autenticado na sessão atual
+    if (!authenticated) {
+      const savedToken = localStorage.getItem('keycloak-token');
+      if (savedToken && !sessionStorage.getItem('keycloak-token-checked')) {
+        console.log('Found saved token but not authenticated, trying to refresh token');
+        sessionStorage.setItem('keycloak-token-checked', 'true');
+        this.refreshToken().then(success => {
+          if (success) {
+            console.log('Token refresh successful from saved token');
+            // Forçar redirecionamento se estiver na página de login
+            if (window.location.pathname === '/login') {
+              window.location.replace('/dashboard');
+            }
+          } else {
+            console.log('Token refresh failed, removing saved token');
+            localStorage.removeItem('keycloak-token');
+          }
+        });
+      }
+    }
+    
     // Armazenar estado de autenticação para verificações entre páginas
     if (authenticated) {
       console.log('User is authenticated, storing in session');
       sessionStorage.setItem('keycloak-authenticated', 'true');
       
       // Se estivermos na página de login e autenticados, redirecionar
-      if (window.location.pathname === '/login') {
+      if (window.location.pathname === '/login' || window.location.pathname === '/') {
         console.log('Authenticated but on login page, redirecting to dashboard');
-        window.location.href = '/dashboard';
+        window.location.replace('/dashboard');
       }
     } else {
       console.log('User is not authenticated');
@@ -187,7 +278,6 @@ class KeycloakService {
   // Obter dados do usuário
   getUser(): KeycloakUser | null {
     if (!this.isAuthenticated() || !keycloak.tokenParsed) {
-      sessionStorage.removeItem('keycloak-authenticated');
       return null;
     }
 
@@ -214,11 +304,15 @@ class KeycloakService {
       const refreshed = await keycloak.updateToken(30); // Refresh se expira em 30 segundos
       if (refreshed) {
         console.log('Token refreshed');
+        if (keycloak.token) {
+          localStorage.setItem('keycloak-token', keycloak.token);
+        }
       }
-      return refreshed;
+      return keycloak.authenticated || false;
     } catch (error) {
       console.error('Failed to refresh token:', error);
-      await this.logout();
+      localStorage.removeItem('keycloak-token');
+      sessionStorage.removeItem('keycloak-authenticated');
       return false;
     }
   }
@@ -238,6 +332,10 @@ class KeycloakService {
   // Registrar callback para login
   onLogin(callback: (user: KeycloakUser | null) => void): void {
     this.loginCallbacks.push(callback);
+    // Se já estiver logado, disparar callback imediatamente
+    if (this.isAuthenticated()) {
+      callback(this.getUser());
+    }
   }
 
   // Registrar callback para logout
